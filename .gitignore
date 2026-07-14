@@ -1,0 +1,24 @@
+# Node modules
+/backend/node_modules/
+/frontend/node_modules/
+
+# Environment files
+.env*
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# OS files
+.DS_Store
+
+# Built files
+/backend/build/
+/frontend/.next/
+/frontend/out/
+/frontend/build/
+
+# Vercel
+.vercel
