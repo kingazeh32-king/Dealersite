@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Manufactured Mobile Homes of Texas icon">
+  <rect width="64" height="64" rx="16" fill="#0F172A"/>
+  <path d="M16 38L32 20L48 38V48H16V38Z" fill="#D4AF37"/>
+  <rect x="24" y="36" width="16" height="12" rx="2" fill="#F8FAFC"/>
+  <path d="M32 12L38 8L44 12" stroke="#D4AF37" stroke-width="3" stroke-linecap="round"/>
+  <path d="M18 28L30 18L42 28" stroke="#F8FAFC" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

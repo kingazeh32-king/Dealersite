@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 88" role="img" aria-label="Manufactured Mobile Homes of Texas logo">
+  <rect x="4" y="4" width="352" height="80" rx="22" fill="#F8FAFC"/>
+  <rect x="14" y="14" width="66" height="60" rx="16" fill="#0F172A"/>
+  <path d="M24 48L44 28L64 48V62H24V48Z" fill="#D4AF37"/>
+  <rect x="32" y="42" width="24" height="18" rx="2" fill="#F8FAFC"/>
+  <path d="M44 21L52 14L60 21V24H44V21Z" fill="#D4AF37"/>
+  <path d="M34 24c4-7 10-10 15-10 8 0 13 4 16 10l-2 3c-3-4-8-7-14-7-5 0-10 2-14 7l-1-3Z" fill="#F8FAFC"/>
+  <path d="M72 28L86 20L98 29L99 40L89 47L74 40L72 28Z" fill="#D4AF37"/>
+  <path d="M44 10L48 6L52 10" stroke="#D4AF37" stroke-width="3" stroke-linecap="round"/>
+  <text x="108" y="38" fill="#0F172A" font-family="Inter, Arial, sans-serif" font-size="20" font-weight="800" letter-spacing="0.4">MANUFACTURED</text>
+  <text x="108" y="62" fill="#D4AF37" font-family="Inter, Arial, sans-serif" font-size="20" font-weight="800" letter-spacing="0.4">MOBILE HOMES OF TX</text>
+</svg>
