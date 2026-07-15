@@ -6,6 +6,8 @@ import { useAuth } from '@/context/AuthContext';
 import { api } from '@/lib/api';
 import PropertyForm from '@/components/admin/PropertyForm';
 import PropertyImageManager from '@/components/admin/PropertyImageManager';
+import AdminPageHeader from '@/components/admin/AdminPageHeader';
+import AdminPanel from '@/components/admin/AdminPanel';
 
 export default function EditPropertyPage() {
   const { id } = useParams();
@@ -23,21 +25,17 @@ export default function EditPropertyPage() {
 
   useEffect(() => {
     let cancelled = false;
-
     const start = () => {
-      if (cancelled) return;
-      void load();
+      if (!cancelled) void load();
     };
-
     queueMicrotask(start);
-
     return () => {
       cancelled = true;
     };
   }, [load]);
 
   if (loading) {
-    return <p className="text-slate">Loading...</p>;
+    return <p className="text-slate">Loading…</p>;
   }
 
   if (!property) {
@@ -45,11 +43,12 @@ export default function EditPropertyPage() {
   }
 
   return (
-    <div className="space-y-8">
-      <div>
-        <h1 className="text-2xl font-bold text-navy">Edit Property</h1>
-        <p className="mt-1 text-sm text-slate">{property.name}</p>
-      </div>
+    <div className="space-y-6">
+      <AdminPageHeader
+        eyebrow="Listings & leads"
+        title="Edit Property"
+        description={property.name}
+      />
 
       <PropertyImageManager
         property={property}
@@ -57,12 +56,15 @@ export default function EditPropertyPage() {
         onUpdate={setProperty}
       />
 
-      <div className="rounded-lg border border-slate-200 bg-white p-6">
-        <h2 className="text-lg font-semibold text-navy">Listing Details</h2>
-        <div className="mt-6">
-          <PropertyForm token={token} property={property} />
+      <AdminPanel title="Listing details" className="">
+        <div className="p-5 sm:p-6">
+          <PropertyForm
+            token={token}
+            property={property}
+            onPropertyUpdate={setProperty}
+          />
         </div>
-      </div>
+      </AdminPanel>
     </div>
   );
 }

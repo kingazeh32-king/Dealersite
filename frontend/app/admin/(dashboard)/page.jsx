@@ -5,6 +5,8 @@ import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
 import { api } from '@/lib/api';
 import { TrendChart, BarChart } from '@/components/admin/AnalyticsChart';
+import StatusBadge from '@/components/admin/StatusBadge';
+import AdminPageHeader from '@/components/admin/AdminPageHeader';
 
 function buildMonthlySeries(rows, key = 'created_at') {
   const months = new Map();
@@ -40,8 +42,26 @@ function buildCategoryBreakdown(rows, field) {
     .slice(0, 6);
 }
 
+function formatWhen(value) {
+  if (!value) return '—';
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return '—';
+  return date.toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric',
+  });
+}
+
+const quickActions = [
+  { href: '/admin/properties/new', label: 'Add property' },
+  { href: '/admin/inquiries', label: 'Review inquiries' },
+  { href: '/admin/leads', label: 'View leads' },
+  { href: '/admin/home', label: 'Edit home page' },
+  { href: '/admin/settings', label: 'Site settings' },
+];
+
 export default function AdminOverviewPage() {
-  const { token } = useAuth();
+  const { token, admin } = useAuth();
   const [stats, setStats] = useState(null);
   const [lastUpdated, setLastUpdated] = useState(null);
   const [refreshing, setRefreshing] = useState(false);
@@ -62,22 +82,21 @@ export default function AdminOverviewPage() {
         const homes = properties.rows || [];
         const inquiryRows = inquiries.rows || [];
         const leadRows = leads.rows || [];
+        const newInquiries = inquiryRows.filter((item) => item.status === 'new');
 
         setStats({
           totalHomes: properties.total,
           available: homes.filter((h) => h.status === 'available').length,
           pending: homes.filter((h) => h.status === 'pending').length,
           sold: homes.filter((h) => h.status === 'sold').length,
-          newInquiries: inquiryRows.filter((i) => i.status === 'new').length,
+          newInquiries: newInquiries.length,
           totalLeads: leads.total,
-          monthlyProperties: buildMonthlySeries(homes),
           monthlyInquiries: buildMonthlySeries(inquiryRows),
           monthlyLeads: buildMonthlySeries(leadRows),
           inquiryTypes: buildCategoryBreakdown(inquiryRows, 'inquiry_type'),
-          leadTypes: buildCategoryBreakdown(leadRows, 'type'),
           topCategories: buildCategoryBreakdown(homes, 'category'),
         });
-        setRecentInquiries(inquiryRows.filter((item) => item.status === 'new').slice(0, 4));
+        setRecentInquiries(newInquiries.slice(0, 5));
         setLastUpdated(new Date());
       } finally {
         setRefreshing(false);
@@ -86,122 +105,252 @@ export default function AdminOverviewPage() {
 
     loadStats();
     const intervalId = window.setInterval(loadStats, 30000);
-
     return () => window.clearInterval(intervalId);
   }, [token]);
 
-  const cards = stats
+  const inventoryTotal = stats
+    ? Math.max(stats.available + stats.pending + stats.sold, 1)
+    : 1;
+
+  const kpis = stats
     ? [
-        { label: 'Total Properties', value: stats.totalHomes, href: '/admin/properties' },
-        { label: 'Available', value: stats.available, href: '/admin/properties' },
-        { label: 'New Inquiries', value: stats.newInquiries, href: '/admin/inquiries' },
-        { label: 'Total Leads', value: stats.totalLeads, href: '/admin/leads' },
-        { label: 'Site Settings', value: '→', href: '/admin/settings', isLink: true },
+        {
+          label: 'Properties',
+          value: stats.totalHomes,
+          detail: `${stats.available} available`,
+          href: '/admin/properties',
+        },
+        {
+          label: 'New inquiries',
+          value: stats.newInquiries,
+          detail: 'Needs a reply',
+          href: '/admin/inquiries',
+          emphasize: stats.newInquiries > 0,
+        },
+        {
+          label: 'Leads',
+          value: stats.totalLeads,
+          detail: 'Quotes & newsletter',
+          href: '/admin/leads',
+        },
+        {
+          label: 'Pending listings',
+          value: stats.pending,
+          detail: 'In review',
+          href: '/admin/properties',
+        },
       ]
     : [];
 
   return (
-    <div>
-      <h1 className="text-2xl font-bold text-navy">Dashboard</h1>
-      <p className="mt-1 text-slate">Overview of your dealership activity and lead generation.</p>
-
-      <div className="mt-8 flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <p className="text-sm text-slate">Live dashboard updates every 30 seconds</p>
-        </div>
-        <div className="flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-sm text-slate shadow-sm">
-          <span className={`h-2.5 w-2.5 rounded-full ${refreshing ? 'bg-amber-500' : 'bg-emerald-500'}`} />
-          {refreshing ? 'Refreshing…' : lastUpdated ? `Updated ${lastUpdated.toLocaleTimeString()}` : 'Waiting for data'}
-        </div>
-      </div>
-
-      {stats && (
-        <div className="mt-6 rounded-xl border border-slate-200 bg-gradient-to-r from-navy to-navy-deep p-5 text-white shadow-sm">
-          <div className="flex flex-wrap items-center justify-between gap-4">
-            <div>
-              <p className="text-sm text-slate-300">New inquiries in the last 5 minutes</p>
-              <p className="mt-1 text-3xl font-semibold">{recentInquiries.length}</p>
-            </div>
-            <div className="rounded-lg bg-white/10 px-3 py-2 text-sm">
-              {recentInquiries.length ? 'Activity is flowing in' : 'No new inquiries right now'}
-            </div>
+    <div className="space-y-8">
+      <AdminPageHeader
+        eyebrow="Overview"
+        title={admin?.name ? `Welcome back, ${admin.name.split(' ')[0]}` : 'Dashboard'}
+        description="Inventory, inquiries, and leads at a glance — so you know what needs attention."
+        meta={
+          <div className="flex items-center gap-2 text-sm text-slate">
+            <span
+              className={`h-2 w-2 rounded-full ${refreshing ? 'bg-amber-500' : 'bg-emerald-500'}`}
+              aria-hidden
+            />
+            <span>
+              {refreshing
+                ? 'Refreshing…'
+                : lastUpdated
+                  ? `Updated ${lastUpdated.toLocaleTimeString()}`
+                  : 'Loading…'}
+            </span>
           </div>
-        </div>
-      )}
+        }
+      />
 
-      <div className="mt-4 grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
-        {!stats
-          ? Array.from({ length: 5 }).map((_, i) => (
-              <div key={i} className="h-28 animate-pulse rounded-lg bg-slate-200" />
-            ))
-          : cards.map((card) => (
-              <Link
-                key={card.label}
-                href={card.href}
-                className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm transition-shadow hover:shadow-md"
-              >
-                <p className="text-sm text-slate">{card.label}</p>
-                <p className="mt-2 text-3xl font-bold text-navy">
-                  {card.isLink ? (
-                    <span className="text-gold">{card.value}</span>
-                  ) : (
-                    card.value
-                  )}
-                </p>
-              </Link>
-            ))}
-      </div>
+      <section aria-label="Key metrics">
+        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          {!stats
+            ? Array.from({ length: 4 }).map((_, index) => (
+                <div key={index} className="h-28 animate-pulse bg-slate-200" />
+              ))
+            : kpis.map((kpi) => (
+                <Link
+                  key={kpi.label}
+                  href={kpi.href}
+                  className={`group border bg-white p-5 transition-colors hover:border-navy ${
+                    kpi.emphasize ? 'border-gold' : 'border-slate-200'
+                  }`}
+                >
+                  <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate">
+                    {kpi.label}
+                  </p>
+                  <p className="mt-3 text-3xl font-semibold tabular-nums text-navy">
+                    {kpi.value}
+                  </p>
+                  <p className="mt-2 text-sm text-slate group-hover:text-navy">
+                    {kpi.detail}
+                  </p>
+                </Link>
+              ))}
+        </div>
+      </section>
+
+      <section aria-label="Quick actions">
+        <div className="flex flex-wrap gap-2">
+          {quickActions.map((action) => (
+            <Link
+              key={action.href}
+              href={action.href}
+              className="border border-slate-200 bg-white px-3.5 py-2 text-sm font-medium text-navy transition-colors hover:border-navy hover:bg-navy hover:text-white"
+            >
+              {action.label}
+            </Link>
+          ))}
+        </div>
+      </section>
 
       {stats && (
         <>
-          <div className="mt-8 rounded-lg border border-slate-200 bg-white p-6">
-            <h2 className="font-semibold text-navy">Inventory breakdown</h2>
-            <div className="mt-4 flex flex-wrap gap-6 text-sm">
-              <span>
-                <span className="font-semibold text-green-700">{stats.available}</span> available
-              </span>
-              <span>
-                <span className="font-semibold text-amber-700">{stats.pending}</span> pending
-              </span>
-              <span>
-                <span className="font-semibold text-slate-600">{stats.sold}</span> sold
-              </span>
+          <section
+            aria-label="Inventory status"
+            className="border border-slate-200 bg-white p-5 sm:p-6"
+          >
+            <div className="flex flex-wrap items-end justify-between gap-3">
+              <div>
+                <h2 className="text-sm font-semibold uppercase tracking-[0.14em] text-slate">
+                  Inventory status
+                </h2>
+                <p className="mt-1 text-sm text-slate">
+                  How your current listings are split across the pipeline.
+                </p>
+              </div>
+              <Link
+                href="/admin/properties"
+                className="text-sm font-medium text-navy hover:text-gold"
+              >
+                Manage properties →
+              </Link>
             </div>
+
+            <div className="mt-5 flex h-3 overflow-hidden bg-slate-light">
+              <div
+                className="bg-emerald-600"
+                style={{ width: `${(stats.available / inventoryTotal) * 100}%` }}
+                title={`${stats.available} available`}
+              />
+              <div
+                className="bg-amber-500"
+                style={{ width: `${(stats.pending / inventoryTotal) * 100}%` }}
+                title={`${stats.pending} pending`}
+              />
+              <div
+                className="bg-slate-400"
+                style={{ width: `${(stats.sold / inventoryTotal) * 100}%` }}
+                title={`${stats.sold} sold`}
+              />
+            </div>
+
+            <div className="mt-4 grid gap-3 text-sm sm:grid-cols-3">
+              <div className="flex items-center justify-between border border-slate-200 px-3 py-2.5">
+                <span className="text-slate">Available</span>
+                <span className="font-semibold tabular-nums text-emerald-700">
+                  {stats.available}
+                </span>
+              </div>
+              <div className="flex items-center justify-between border border-slate-200 px-3 py-2.5">
+                <span className="text-slate">Pending</span>
+                <span className="font-semibold tabular-nums text-amber-700">
+                  {stats.pending}
+                </span>
+              </div>
+              <div className="flex items-center justify-between border border-slate-200 px-3 py-2.5">
+                <span className="text-slate">Sold</span>
+                <span className="font-semibold tabular-nums text-slate-600">
+                  {stats.sold}
+                </span>
+              </div>
+            </div>
+          </section>
+
+          <div className="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
+            <section
+              aria-label="Recent inquiries"
+              className="border border-slate-200 bg-white"
+            >
+              <div className="flex items-center justify-between border-b border-slate-200 px-5 py-4 sm:px-6">
+                <div>
+                  <h2 className="text-sm font-semibold uppercase tracking-[0.14em] text-slate">
+                    Needs attention
+                  </h2>
+                  <p className="mt-1 text-sm text-slate">Newest inquiries waiting for a response.</p>
+                </div>
+                <Link
+                  href="/admin/inquiries"
+                  className="text-sm font-medium text-navy hover:text-gold"
+                >
+                  View all →
+                </Link>
+              </div>
+
+              {recentInquiries.length ? (
+                <ul className="divide-y divide-slate-200">
+                  {recentInquiries.map((inquiry) => (
+                    <li key={inquiry.id}>
+                      <Link
+                        href="/admin/inquiries"
+                        className="flex items-start justify-between gap-4 px-5 py-4 transition-colors hover:bg-slate-light/60 sm:px-6"
+                      >
+                        <div className="min-w-0">
+                          <p className="truncate font-medium text-navy">
+                            {inquiry.name || 'Unknown'}
+                          </p>
+                          <p className="mt-0.5 truncate text-sm text-slate">
+                            {inquiry.email || 'No email'}
+                            {inquiry.inquiry_type ? ` · ${inquiry.inquiry_type}` : ''}
+                          </p>
+                        </div>
+                        <div className="flex shrink-0 flex-col items-end gap-2">
+                          <StatusBadge status={inquiry.status} />
+                          <span className="text-xs text-slate">
+                            {formatWhen(inquiry.created_at)}
+                          </span>
+                        </div>
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="px-5 py-10 text-center text-sm text-slate sm:px-6">
+                  No new inquiries right now. You’re caught up.
+                </p>
+              )}
+            </section>
+
+            <BarChart
+              title="Inventory mix"
+              subtitle="Listings by category"
+              data={stats.topCategories}
+              color="#0f172a"
+            />
           </div>
 
-          <div className="mt-8 grid gap-6 xl:grid-cols-2">
+          <div className="grid gap-6 xl:grid-cols-2">
             <TrendChart
-              title="Property activity"
-              subtitle="Listings created over the last 6 months"
-              data={stats.monthlyProperties}
-            />
-            <TrendChart
-              title="Inquiry activity"
-              subtitle="New inquiries received over the last 6 months"
+              title="Inquiries"
+              subtitle="Last 6 months"
               data={stats.monthlyInquiries}
             />
             <TrendChart
-              title="Lead growth"
-              subtitle="Newsletter and pre-qualification leads over the last 6 months"
+              title="Leads"
+              subtitle="Last 6 months"
               data={stats.monthlyLeads}
-            />
-            <BarChart
-              title="Inquiry types"
-              subtitle="Breakdown of incoming inquiry categories"
-              data={stats.inquiryTypes}
-            />
-            <BarChart
-              title="Lead sources"
-              subtitle="Newsletter vs pre-qualification leads"
-              data={stats.leadTypes}
-            />
-            <BarChart
-              title="Property categories"
-              subtitle="Inventory mix by listing category"
-              data={stats.topCategories}
-              color="#0f2b4f"
+              accent="#0f172a"
             />
           </div>
+
+          <BarChart
+            title="Inquiry types"
+            subtitle="Where interest is coming from"
+            data={stats.inquiryTypes}
+          />
         </>
       )}
     </div>

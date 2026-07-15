@@ -6,7 +6,7 @@ const { upload, storage: storageConfig } = require('../config/env');
 const logger = require('./logger');
 
 const uploadRoot = path.resolve(process.cwd(), upload.dir);
-const SUBDIRS = ['properties', 'site', 'team'];
+const SUBDIRS = ['properties', 'site', 'team', 'floorplans', 'tours'];
 
 for (const subdir of SUBDIRS) {
   const dir = path.join(uploadRoot, subdir);
@@ -18,6 +18,8 @@ for (const subdir of SUBDIRS) {
 const propertiesDir = path.join(uploadRoot, 'properties');
 const siteDir = path.join(uploadRoot, 'site');
 const teamDir = path.join(uploadRoot, 'team');
+const floorplansDir = path.join(uploadRoot, 'floorplans');
+const toursDir = path.join(uploadRoot, 'tours');
 
 const useS3 = storageConfig.driver === 's3';
 
@@ -109,14 +111,14 @@ function createDiskStorage(destDir, nameFn) {
   });
 }
 
-function buildMulter({ folder, destDir, nameFn, fileFilter }) {
+function buildMulter({ folder, destDir, nameFn, fileFilter, maxSizeBytes }) {
   const storage = useS3
     ? createS3Storage(folder, nameFn)
     : createDiskStorage(destDir, nameFn);
 
   return multer({
     storage,
-    limits: { fileSize: upload.maxSizeBytes },
+    limits: { fileSize: maxSizeBytes || upload.maxSizeBytes },
     fileFilter,
   });
 }
@@ -166,13 +168,50 @@ const uploadTeamPhoto = buildMulter({
   fileFilter: imageFilter,
 });
 
+const pdfFilter = (_req, file, cb) => {
+  if (file.mimetype === 'application/pdf') {
+    cb(null, true);
+  } else {
+    cb(new Error('Only PDF files are allowed for floor plans'));
+  }
+};
+
+const tourFilter = (_req, file, cb) => {
+  const allowed = ['video/mp4', 'video/webm', 'video/quicktime'];
+  if (allowed.includes(file.mimetype)) {
+    cb(null, true);
+  } else {
+    cb(new Error('Only MP4, WebM, or MOV videos are allowed for virtual tours'));
+  }
+};
+
+const uploadFloorPlan = buildMulter({
+  folder: 'floorplans',
+  destDir: floorplansDir,
+  nameFn: (file) => `floorplan-${Date.now()}${path.extname(file.originalname).toLowerCase()}`,
+  fileFilter: pdfFilter,
+  maxSizeBytes: 20 * 1024 * 1024,
+});
+
+const uploadVirtualTour = buildMulter({
+  folder: 'tours',
+  destDir: toursDir,
+  nameFn: (file) => `tour-${Date.now()}${path.extname(file.originalname).toLowerCase()}`,
+  fileFilter: tourFilter,
+  maxSizeBytes: 80 * 1024 * 1024,
+});
+
 module.exports = {
   uploadPropertyImages,
   uploadSiteLogo,
   uploadTeamPhoto,
+  uploadFloorPlan,
+  uploadVirtualTour,
   filePublicUrl,
   propertiesDir,
   siteDir,
   teamDir,
+  floorplansDir,
+  toursDir,
   useS3,
 };

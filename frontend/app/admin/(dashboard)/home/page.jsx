@@ -2,16 +2,18 @@
 
 import { useAuth } from '@/context/AuthContext';
 import HomePageForm from '@/components/admin/HomePageForm';
+import AdminPageHeader from '@/components/admin/AdminPageHeader';
 
 export default function AdminHomePage() {
   const { token } = useAuth();
   return (
-    <div>
-      <h1 className="text-2xl font-bold text-navy">Home Page</h1>
-      <p className="mt-1 text-sm text-slate">Edit the hero banner and trust signals on the landing page.</p>
-      <div className="mt-8">
-        <HomePageForm token={token} />
-      </div>
+    <div className="space-y-6">
+      <AdminPageHeader
+        eyebrow="Website content"
+        title="Home Page"
+        description="Edit the hero banner, trust signals, and homepage sections."
+      />
+      <HomePageForm token={token} />
     </div>
   );
 }

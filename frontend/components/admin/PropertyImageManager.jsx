@@ -56,7 +56,7 @@ export default function PropertyImageManager({ property, token, onUpdate }) {
   }
 
   return (
-    <section className="rounded-lg border border-slate-200 bg-white p-6">
+    <section className="border border-slate-200 bg-white p-6">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <h2 className="text-lg font-semibold text-navy">Property Images</h2>
@@ -96,7 +96,7 @@ export default function PropertyImageManager({ property, token, onUpdate }) {
             return (
               <div
                 key={`${path}-${index}`}
-                className="overflow-hidden rounded-lg border border-slate-200"
+                className="overflow-hidden border border-slate-200"
               >
                 <div className="relative aspect-[4/3] bg-slate-light">
                   <img
@@ -133,7 +133,7 @@ export default function PropertyImageManager({ property, token, onUpdate }) {
           })}
         </div>
       ) : (
-        <div className="mt-6 rounded-lg border border-dashed border-slate-200 py-12 text-center">
+        <div className="mt-6 border border-dashed border-slate-200 py-12 text-center">
           <p className="text-sm text-slate">No images yet. Upload photos for this listing.</p>
         </div>
       )}

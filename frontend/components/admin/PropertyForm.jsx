@@ -3,9 +3,13 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { api } from '@/lib/api';
+import { resolveImageUrl } from '@/lib/images';
 
-const inputClass =
-  'mt-1 w-full rounded-md border border-slate-200 px-3 py-2 text-sm text-navy focus:border-gold focus:outline-none focus:ring-1 focus:ring-gold';
+import {
+  adminFieldClass as inputClass,
+  adminPrimaryBtnClass,
+  adminSecondaryBtnClass,
+} from '@/lib/adminUi';
 
 const emptyForm = {
   name: '',
@@ -72,12 +76,20 @@ function toPayload(form) {
   };
 }
 
-export default function PropertyForm({ token, property }) {
+function fileLabel(path) {
+  if (!path) return null;
+  const parts = String(path).split('/');
+  return parts[parts.length - 1] || path;
+}
+
+export default function PropertyForm({ token, property, onPropertyUpdate }) {
   const router = useRouter();
   const isEdit = !!property;
   const [form, setForm] = useState(() => toForm(property));
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [uploadingTour, setUploadingTour] = useState(false);
+  const [uploadingFloorPlan, setUploadingFloorPlan] = useState(false);
 
   function handleChange(e) {
     const { name, value, type, checked } = e.target;
@@ -85,6 +97,50 @@ export default function PropertyForm({ token, property }) {
       ...prev,
       [name]: type === 'checkbox' ? checked : value,
     }));
+  }
+
+  function applyPropertyUpdate(updated) {
+    if (!updated) return;
+    setForm((prev) => ({
+      ...prev,
+      virtual_tour: updated.virtual_tour || '',
+      pdf_floorplan: updated.pdf_floorplan || '',
+    }));
+    onPropertyUpdate?.(updated);
+  }
+
+  async function handleTourUpload(e) {
+    const file = e.target.files?.[0];
+    e.target.value = '';
+    if (!file || !property?.id) return;
+
+    setError('');
+    setUploadingTour(true);
+    try {
+      const data = await api.uploadPropertyVirtualTour(token, property.id, file);
+      applyPropertyUpdate(data.property);
+    } catch (err) {
+      setError(err.message || 'Failed to upload virtual tour video');
+    } finally {
+      setUploadingTour(false);
+    }
+  }
+
+  async function handleFloorPlanUpload(e) {
+    const file = e.target.files?.[0];
+    e.target.value = '';
+    if (!file || !property?.id) return;
+
+    setError('');
+    setUploadingFloorPlan(true);
+    try {
+      const data = await api.uploadPropertyFloorPlan(token, property.id, file);
+      applyPropertyUpdate(data.property);
+    } catch (err) {
+      setError(err.message || 'Failed to upload floor plan PDF');
+    } finally {
+      setUploadingFloorPlan(false);
+    }
   }
 
   async function handleSubmit(e) {
@@ -176,34 +232,123 @@ export default function PropertyForm({ token, property }) {
           <label className="block text-sm font-medium text-navy">Delivery Info</label>
           <textarea name="delivery_info" rows={2} value={form.delivery_info} onChange={handleChange} className={inputClass} />
         </div>
-        <div className="sm:col-span-2">
-          <label className="block text-sm font-medium text-navy">Virtual Tour URL</label>
-          <input
-            name="virtual_tour"
-            type="url"
-            value={form.virtual_tour}
-            onChange={handleChange}
-            className={inputClass}
-            placeholder="https://my.matterport.com/show/?m=..."
-          />
-          <p className="mt-1 text-xs text-slate">
-            Embed URL for a 360° tour (Matterport, etc.). Shown on the public listing page.
-          </p>
+
+        <div className="space-y-3 border border-slate-200 bg-slate-light/30 p-4 sm:col-span-2">
+          <div>
+            <label className="block text-sm font-medium text-navy">Virtual Tour</label>
+            <p className="mt-1 text-xs text-slate">
+              Upload a walkthrough video from this device, or paste a Matterport / embed URL.
+            </p>
+          </div>
+
+          {isEdit ? (
+            <div>
+              <label className="block text-xs font-semibold uppercase tracking-[0.12em] text-slate">
+                Upload video
+              </label>
+              <input
+                type="file"
+                accept="video/mp4,video/webm,video/quicktime"
+                onChange={handleTourUpload}
+                disabled={uploadingTour}
+                className="mt-1 block w-full text-sm text-slate file:mr-3 file:border-0 file:bg-navy file:px-3 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:bg-navy-deep disabled:opacity-60"
+              />
+              <p className="mt-1 text-xs text-slate">
+                {uploadingTour ? 'Uploading…' : 'MP4, WebM, or MOV · up to 80MB'}
+              </p>
+            </div>
+          ) : (
+            <p className="text-xs text-slate">
+              Create the property first, then you can upload a tour video on the edit page.
+            </p>
+          )}
+
+          <div>
+            <label className="block text-xs font-semibold uppercase tracking-[0.12em] text-slate">
+              Or paste URL
+            </label>
+            <input
+              name="virtual_tour"
+              type="text"
+              value={form.virtual_tour}
+              onChange={handleChange}
+              className={inputClass}
+              placeholder="https://my.matterport.com/show/?m=... or uploaded file path"
+            />
+            {form.virtual_tour && (
+              <p className="mt-1 truncate text-xs text-slate">
+                Current:{' '}
+                <a
+                  href={resolveImageUrl(form.virtual_tour) || form.virtual_tour}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-medium text-navy hover:text-gold"
+                >
+                  {fileLabel(form.virtual_tour)}
+                </a>
+              </p>
+            )}
+          </div>
         </div>
-        <div className="sm:col-span-2">
-          <label className="block text-sm font-medium text-navy">Floor Plan PDF URL</label>
-          <input
-            name="pdf_floorplan"
-            type="url"
-            value={form.pdf_floorplan}
-            onChange={handleChange}
-            className={inputClass}
-            placeholder="https://example.com/floorplan.pdf or /uploads/..."
-          />
-          <p className="mt-1 text-xs text-slate">
-            Link to a PDF floor plan. Buyers can open it from the listing page.
-          </p>
+
+        <div className="space-y-3 border border-slate-200 bg-slate-light/30 p-4 sm:col-span-2">
+          <div>
+            <label className="block text-sm font-medium text-navy">Floor Plan PDF</label>
+            <p className="mt-1 text-xs text-slate">
+              Upload a PDF from this device, or paste a link to an existing file.
+            </p>
+          </div>
+
+          {isEdit ? (
+            <div>
+              <label className="block text-xs font-semibold uppercase tracking-[0.12em] text-slate">
+                Upload PDF
+              </label>
+              <input
+                type="file"
+                accept="application/pdf,.pdf"
+                onChange={handleFloorPlanUpload}
+                disabled={uploadingFloorPlan}
+                className="mt-1 block w-full text-sm text-slate file:mr-3 file:border-0 file:bg-navy file:px-3 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:bg-navy-deep disabled:opacity-60"
+              />
+              <p className="mt-1 text-xs text-slate">
+                {uploadingFloorPlan ? 'Uploading…' : 'PDF only · up to 20MB'}
+              </p>
+            </div>
+          ) : (
+            <p className="text-xs text-slate">
+              Create the property first, then you can upload a floor plan PDF on the edit page.
+            </p>
+          )}
+
+          <div>
+            <label className="block text-xs font-semibold uppercase tracking-[0.12em] text-slate">
+              Or paste URL
+            </label>
+            <input
+              name="pdf_floorplan"
+              type="text"
+              value={form.pdf_floorplan}
+              onChange={handleChange}
+              className={inputClass}
+              placeholder="https://example.com/floorplan.pdf or uploaded file path"
+            />
+            {form.pdf_floorplan && (
+              <p className="mt-1 truncate text-xs text-slate">
+                Current:{' '}
+                <a
+                  href={resolveImageUrl(form.pdf_floorplan) || form.pdf_floorplan}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-medium text-navy hover:text-gold"
+                >
+                  {fileLabel(form.pdf_floorplan)}
+                </a>
+              </p>
+            )}
+          </div>
         </div>
+
         <div className="flex items-center gap-2 sm:col-span-2">
           <input
             id="is_featured"
@@ -220,21 +365,21 @@ export default function PropertyForm({ token, property }) {
       </div>
 
       {error && (
-        <p className="rounded-md bg-red-50 px-4 py-3 text-sm text-red-700">{error}</p>
+        <p className="border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</p>
       )}
 
       <div className="flex gap-3">
         <button
           type="submit"
-          disabled={loading}
-          className="rounded-md bg-gold px-5 py-2.5 text-sm font-semibold text-navy-deep hover:bg-gold-hover disabled:opacity-60"
+          disabled={loading || uploadingTour || uploadingFloorPlan}
+          className={adminPrimaryBtnClass}
         >
           {loading ? 'Saving...' : isEdit ? 'Update Property' : 'Create Property'}
         </button>
         <button
           type="button"
           onClick={() => router.back()}
-          className="rounded-md border border-slate-200 px-5 py-2.5 text-sm font-medium text-navy hover:bg-slate-light"
+          className={adminSecondaryBtnClass}
         >
           Cancel
         </button>

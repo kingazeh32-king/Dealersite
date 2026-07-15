@@ -4,34 +4,41 @@ import { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
 import { api } from '@/lib/api';
+import AdminPageHeader from '@/components/admin/AdminPageHeader';
+import AdminTable from '@/components/admin/AdminTable';
+import StatusBadge from '@/components/admin/StatusBadge';
+import {
+  adminActionLinkClass,
+  adminDangerLinkClass,
+  adminPrimaryBtnClass,
+} from '@/lib/adminUi';
 
 export default function AdminResourcesPage() {
   const { token } = useAuth();
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  const load = useCallback(async () => {
+    if (!token) return;
+    setLoading(true);
+    try {
+      const data = await api.getAdminResources(token);
+      setItems(data.rows || []);
+    } finally {
+      setLoading(false);
+    }
+  }, [token]);
+
   useEffect(() => {
     let cancelled = false;
-
-    async function load() {
-      if (!token) return;
-      setLoading(true);
-      try {
-        const data = await api.getAdminResources(token);
-        if (cancelled) return;
-        setItems(data.rows || []);
-      } finally {
-        if (!cancelled) {
-          setLoading(false);
-        }
-      }
-    }
-
-    void load();
+    const start = () => {
+      if (!cancelled) void load();
+    };
+    queueMicrotask(start);
     return () => {
       cancelled = true;
     };
-  }, [token]);
+  }, [load]);
 
   async function handleDelete(id, title) {
     if (!confirm(`Delete "${title}"?`)) return;
@@ -40,45 +47,50 @@ export default function AdminResourcesPage() {
   }
 
   return (
-    <div>
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-navy">Resources</h1>
-          <p className="mt-1 text-sm text-slate">Manage buying guides and articles.</p>
-        </div>
-        <Link href="/admin/resources/new" className="rounded-md bg-gold px-4 py-2 text-sm font-semibold text-navy-deep hover:bg-gold-hover">+ Add Article</Link>
-      </div>
-      <div className="mt-6 overflow-x-auto rounded-lg border border-slate-200 bg-white">
-        <table className="min-w-full text-left text-sm">
-          <thead className="border-b border-slate-200 bg-slate-light/50">
-            <tr>
-              <th className="px-4 py-3 font-semibold text-navy">Title</th>
-              <th className="px-4 py-3 font-semibold text-navy">Type</th>
-              <th className="px-4 py-3 font-semibold text-navy">Published</th>
-              <th className="px-4 py-3 font-semibold text-navy">Actions</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-100">
-            {loading ? (
-              <tr><td colSpan={4} className="px-4 py-8 text-center text-slate">Loading...</td></tr>
-            ) : items.length === 0 ? (
-              <tr><td colSpan={4} className="px-4 py-8 text-center text-slate">No articles yet.</td></tr>
-            ) : items.map((item) => (
-              <tr key={item.id} className="hover:bg-slate-light/30">
-                <td className="px-4 py-3 font-medium text-navy">{item.title}</td>
-                <td className="px-4 py-3 capitalize text-slate">{item.type}</td>
-                <td className="px-4 py-3 text-slate">{item.is_published ? 'Yes' : 'Draft'}</td>
-                <td className="px-4 py-3">
-                  <div className="flex gap-3">
-                    <Link href={`/admin/resources/${item.id}/edit`} className="font-medium text-navy hover:text-gold">Edit</Link>
-                    <button type="button" onClick={() => handleDelete(item.id, item.title)} className="font-medium text-red-600 hover:text-red-800">Delete</button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+    <div className="space-y-6">
+      <AdminPageHeader
+        eyebrow="Website content"
+        title="Resources"
+        description="Buying guides and articles on the public resources section."
+        actions={
+          <Link href="/admin/resources/new" className={adminPrimaryBtnClass}>
+            + Add Article
+          </Link>
+        }
+      />
+
+      <AdminTable
+        columns={['Title', 'Type', 'Published', 'Actions']}
+        loading={loading}
+        empty="No articles yet."
+      >
+        {items.map((item) => (
+          <tr key={item.id} className="transition-colors hover:bg-slate-light/40">
+            <td className="px-4 py-4 font-medium text-navy">{item.title}</td>
+            <td className="px-4 py-4 capitalize text-slate">{item.type}</td>
+            <td className="px-4 py-4">
+              <StatusBadge status={item.is_published ? 'published' : 'hidden'} />
+            </td>
+            <td className="px-4 py-4">
+              <div className="flex gap-3">
+                <Link
+                  href={`/admin/resources/${item.id}/edit`}
+                  className={adminActionLinkClass}
+                >
+                  Edit
+                </Link>
+                <button
+                  type="button"
+                  onClick={() => handleDelete(item.id, item.title)}
+                  className={adminDangerLinkClass}
+                >
+                  Delete
+                </button>
+              </div>
+            </td>
+          </tr>
+        ))}
+      </AdminTable>
     </div>
   );
 }

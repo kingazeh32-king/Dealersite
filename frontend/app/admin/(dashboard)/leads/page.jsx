@@ -3,6 +3,8 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { api } from '@/lib/api';
+import AdminPageHeader from '@/components/admin/AdminPageHeader';
+import AdminTable from '@/components/admin/AdminTable';
 import StatusBadge from '@/components/admin/StatusBadge';
 
 function formatPrice(price) {
@@ -32,69 +34,59 @@ export default function AdminLeadsPage() {
 
   useEffect(() => {
     let cancelled = false;
-
     const start = () => {
-      if (cancelled) return;
-      void load();
+      if (!cancelled) void load();
     };
-
     queueMicrotask(start);
-
     return () => {
       cancelled = true;
     };
   }, [load]);
 
   return (
-    <div>
-      <h1 className="text-2xl font-bold text-navy">Leads</h1>
-      <p className="mt-1 text-sm text-slate">Quote requests and newsletter signups.</p>
+    <div className="space-y-6">
+      <AdminPageHeader
+        eyebrow="Listings & leads"
+        title="Leads"
+        description="Quote requests and newsletter signups from the public site."
+        meta={
+          !loading ? (
+            <span className="text-sm text-slate">
+              <span className="font-semibold tabular-nums text-navy">{leads.length}</span>{' '}
+              total
+            </span>
+          ) : null
+        }
+      />
 
-      <div className="mt-6 overflow-x-auto rounded-lg border border-slate-200 bg-white">
-        <table className="min-w-full text-left text-sm">
-          <thead className="border-b border-slate-200 bg-slate-light/50">
-            <tr>
-              <th className="px-4 py-3 font-semibold text-navy">Date</th>
-              <th className="px-4 py-3 font-semibold text-navy">Type</th>
-              <th className="px-4 py-3 font-semibold text-navy">Name</th>
-              <th className="px-4 py-3 font-semibold text-navy">Email</th>
-              <th className="px-4 py-3 font-semibold text-navy">Phone</th>
-              <th className="px-4 py-3 font-semibold text-navy">Details</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-100">
-            {loading ? (
-              <tr>
-                <td colSpan={6} className="px-4 py-8 text-center text-slate">Loading...</td>
-              </tr>
-            ) : leads.length === 0 ? (
-              <tr>
-                <td colSpan={6} className="px-4 py-8 text-center text-slate">No leads yet.</td>
-              </tr>
-            ) : (
-              leads.map((lead) => (
-                <tr key={lead.id} className="align-top hover:bg-slate-light/30">
-                  <td className="px-4 py-3 whitespace-nowrap text-slate">
-                    {new Date(lead.created_at).toLocaleDateString()}
-                  </td>
-                  <td className="px-4 py-3">
-                    <StatusBadge status={lead.type === 'prequalify' ? 'pending' : 'new'} />
-                    <span className="ml-1 capitalize text-slate">{lead.type}</span>
-                  </td>
-                  <td className="px-4 py-3 font-medium text-navy">{lead.name || '—'}</td>
-                  <td className="px-4 py-3 text-slate">{lead.email}</td>
-                  <td className="px-4 py-3 text-slate">{lead.phone || '—'}</td>
-                  <td className="px-4 py-3 text-xs text-slate">
-                    {lead.income_range && <div>Income: {lead.income_range}</div>}
-                    {lead.credit_range && <div>Credit: {lead.credit_range}</div>}
-                    {lead.desired_price && <div>Budget: {formatPrice(lead.desired_price)}</div>}
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
+      <AdminTable
+        columns={['Date', 'Type', 'Name', 'Email', 'Phone', 'Details']}
+        loading={loading}
+        empty="No leads yet."
+      >
+        {leads.map((lead) => (
+          <tr key={lead.id} className="align-top transition-colors hover:bg-slate-light/40">
+            <td className="whitespace-nowrap px-4 py-4 text-slate">
+              {new Date(lead.created_at).toLocaleDateString()}
+            </td>
+            <td className="px-4 py-4">
+              <div className="flex flex-col items-start gap-2">
+                <StatusBadge status={lead.type === 'prequalify' ? 'pending' : 'new'} />
+                <span className="text-xs capitalize text-slate">{lead.type}</span>
+              </div>
+            </td>
+            <td className="px-4 py-4 font-medium text-navy">{lead.name || '—'}</td>
+            <td className="px-4 py-4 text-slate">{lead.email}</td>
+            <td className="px-4 py-4 text-slate">{lead.phone || '—'}</td>
+            <td className="px-4 py-4 text-xs leading-relaxed text-slate">
+              {lead.income_range && <div>Income: {lead.income_range}</div>}
+              {lead.credit_range && <div>Credit: {lead.credit_range}</div>}
+              {lead.desired_price && <div>Budget: {formatPrice(lead.desired_price)}</div>}
+              {!lead.income_range && !lead.credit_range && !lead.desired_price && '—'}
+            </td>
+          </tr>
+        ))}
+      </AdminTable>
     </div>
   );
 }

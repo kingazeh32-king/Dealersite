@@ -5,9 +5,19 @@ function resolveMediaUrl(path) {
   return resolveImageUrl(path);
 }
 
+function isVideoSource(url) {
+  if (!url) return false;
+  const lower = url.toLowerCase();
+  return (
+    lower.includes('/uploads/tours/') ||
+    /\.(mp4|webm|mov)(\?|$)/i.test(lower)
+  );
+}
+
 export default function PropertyMedia({ virtualTour, pdfFloorplan }) {
   const tourUrl = resolveMediaUrl(virtualTour);
   const pdfUrl = resolveMediaUrl(pdfFloorplan);
+  const tourIsVideo = isVideoSource(tourUrl || virtualTour);
 
   if (!tourUrl && !pdfUrl) return null;
 
@@ -17,16 +27,30 @@ export default function PropertyMedia({ virtualTour, pdfFloorplan }) {
         <div>
           <h2 className="text-xl font-semibold text-navy">Virtual Tour</h2>
           <p className="mt-2 text-sm text-slate">
-            Explore this home with our interactive 360° walkthrough.
+            {tourIsVideo
+              ? 'Watch a walkthrough of this home.'
+              : 'Explore this home with our interactive 360° walkthrough.'}
           </p>
           <div className="mt-4 aspect-video overflow-hidden rounded-lg border border-slate-200 bg-slate-light">
-            <iframe
-              src={tourUrl}
-              title="Virtual tour"
-              className="h-full w-full"
-              allowFullScreen
-              loading="lazy"
-            />
+            {tourIsVideo ? (
+              <video
+                src={tourUrl}
+                controls
+                playsInline
+                className="h-full w-full object-cover"
+                title="Virtual tour"
+              >
+                Your browser does not support video playback.
+              </video>
+            ) : (
+              <iframe
+                src={tourUrl}
+                title="Virtual tour"
+                className="h-full w-full"
+                allowFullScreen
+                loading="lazy"
+              />
+            )}
           </div>
         </div>
       )}

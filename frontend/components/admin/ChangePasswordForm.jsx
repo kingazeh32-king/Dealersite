@@ -4,8 +4,10 @@ import { useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { api } from '@/lib/api';
 
-const inputClass =
-  'mt-1 w-full rounded-md border border-slate-200 px-3 py-2 text-sm text-navy focus:border-gold focus:outline-none focus:ring-1 focus:ring-gold';
+import {
+  adminFieldClass as inputClass,
+  adminPrimaryBtnClass,
+} from '@/lib/adminUi';
 
 export default function ChangePasswordForm() {
   const { token } = useAuth();
@@ -106,16 +108,16 @@ export default function ChangePasswordForm() {
       </div>
 
       {error && (
-        <p className="rounded-md bg-red-50 px-4 py-3 text-sm text-red-700">{error}</p>
+        <p className="border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</p>
       )}
       {success && (
-        <p className="rounded-md bg-green-50 px-4 py-3 text-sm text-green-700">{success}</p>
+        <p className="border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">{success}</p>
       )}
 
       <button
         type="submit"
         disabled={loading}
-        className="rounded-md bg-gold px-5 py-2.5 text-sm font-semibold text-navy-deep hover:bg-gold-hover disabled:opacity-60"
+        className={adminPrimaryBtnClass}
       >
         {loading ? 'Updating…' : 'Update password'}
       </button>

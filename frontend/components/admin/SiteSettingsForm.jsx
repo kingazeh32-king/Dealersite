@@ -4,8 +4,10 @@ import { useEffect, useRef, useState } from 'react';
 import { api } from '@/lib/api';
 import { normalizeSettings, toApiPayload } from '@/lib/siteSettings';
 
-const inputClass =
-  'mt-1 w-full rounded-md border border-slate-200 px-3 py-2 text-sm text-navy focus:border-gold focus:outline-none focus:ring-1 focus:ring-gold';
+import {
+  adminFieldClass as inputClass,
+  adminPrimaryBtnClass,
+} from '@/lib/adminUi';
 
 function toForm(settings) {
   return {
@@ -120,7 +122,7 @@ export default function SiteSettingsForm({ token, onSaved }) {
         </p>
       )}
 
-      <section className="rounded-lg border border-slate-200 bg-white p-6">
+      <section className="border border-slate-200 bg-white p-6">
         <h2 className="text-lg font-semibold text-navy">Site identity</h2>
         <p className="mt-1 text-sm text-slate">
           Your dealership name and logo appear in the header, footer, and browser tab.
@@ -179,7 +181,7 @@ export default function SiteSettingsForm({ token, onSaved }) {
         </div>
       </section>
 
-      <section className="rounded-lg border border-slate-200 bg-white p-6">
+      <section className="border border-slate-200 bg-white p-6">
         <h2 className="text-lg font-semibold text-navy">Contact information</h2>
         <p className="mt-1 text-sm text-slate">
           Displayed in the footer, contact page, and anywhere visitors reach out.
@@ -248,7 +250,7 @@ export default function SiteSettingsForm({ token, onSaved }) {
         <button
           type="submit"
           disabled={loading}
-          className="rounded-md bg-gold px-6 py-2.5 text-sm font-semibold text-navy-deep hover:bg-gold-hover disabled:opacity-60"
+          className={adminPrimaryBtnClass}
         >
           {loading ? 'Saving…' : 'Save settings'}
         </button>

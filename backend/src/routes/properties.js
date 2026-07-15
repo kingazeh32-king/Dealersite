@@ -20,7 +20,11 @@ const { Router } = require('express');
 const { query, param, body } = require('express-validator');
 const { validate } = require('../middleware/validate');
 const { authenticate } = require('../middleware/auth');
-const { uploadPropertyImages } = require('../utils/upload');
+const {
+  uploadPropertyImages,
+  uploadFloorPlan,
+  uploadVirtualTour,
+} = require('../utils/upload');
 const propertiesController = require('../controllers/propertiesController');
 
 const router = Router();
@@ -113,6 +117,22 @@ router.put(
     validate,
   ],
   propertiesController.updateImages
+);
+
+router.post(
+  '/admin/:id/floorplan',
+  authenticate,
+  [param('id').isInt({ min: 1 }), validate],
+  uploadFloorPlan.single('floorplan'),
+  propertiesController.uploadFloorPlan
+);
+
+router.post(
+  '/admin/:id/virtual-tour',
+  authenticate,
+  [param('id').isInt({ min: 1 }), validate],
+  uploadVirtualTour.single('virtual_tour'),
+  propertiesController.uploadVirtualTour
 );
 
 module.exports = router;

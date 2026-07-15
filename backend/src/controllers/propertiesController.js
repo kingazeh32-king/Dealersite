@@ -174,6 +174,48 @@ async function updateImages(req, res, next) {
   }
 }
 
+async function uploadFloorPlan(req, res, next) {
+  try {
+    const id = Number(req.params.id);
+    const property = await db.properties.findById(id);
+    if (!property) {
+      return res.status(404).json({ error: 'Property not found' });
+    }
+    if (!req.file) {
+      return res.status(400).json({ error: 'No PDF file uploaded' });
+    }
+
+    const { filePublicUrl } = require('../utils/upload');
+    const pdf_floorplan = filePublicUrl(req.file, 'floorplans');
+    const updated = await db.properties.update(id, { pdf_floorplan });
+
+    res.json({ property: updated, pdf_floorplan });
+  } catch (err) {
+    next(err);
+  }
+}
+
+async function uploadVirtualTour(req, res, next) {
+  try {
+    const id = Number(req.params.id);
+    const property = await db.properties.findById(id);
+    if (!property) {
+      return res.status(404).json({ error: 'Property not found' });
+    }
+    if (!req.file) {
+      return res.status(400).json({ error: 'No video file uploaded' });
+    }
+
+    const { filePublicUrl } = require('../utils/upload');
+    const virtual_tour = filePublicUrl(req.file, 'tours');
+    const updated = await db.properties.update(id, { virtual_tour });
+
+    res.json({ property: updated, virtual_tour });
+  } catch (err) {
+    next(err);
+  }
+}
+
 module.exports = {
   list,
   featured,
@@ -184,4 +226,6 @@ module.exports = {
   remove,
   uploadImages,
   updateImages,
+  uploadFloorPlan,
+  uploadVirtualTour,
 };

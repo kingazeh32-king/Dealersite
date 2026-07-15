@@ -5,6 +5,8 @@ import { useParams } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { api } from '@/lib/api';
 import TeamMemberForm from '@/components/admin/TeamMemberForm';
+import AdminPageHeader from '@/components/admin/AdminPageHeader';
+import AdminPanel from '@/components/admin/AdminPanel';
 
 export default function EditTeamMemberPage() {
   const { token } = useAuth();
@@ -26,16 +28,19 @@ export default function EditTeamMemberPage() {
   }
 
   if (!member) {
-    return <div className="h-40 animate-pulse rounded-lg bg-slate-200" />;
+    return <div className="h-40 animate-pulse bg-slate-200" />;
   }
 
   return (
-    <div>
-      <h1 className="text-2xl font-bold text-navy">Edit Team Member</h1>
-      <p className="mt-1 text-sm text-slate">Update {member.name}&apos;s profile and photo.</p>
-      <div className="mt-8">
+    <div className="space-y-6">
+      <AdminPageHeader
+        eyebrow="Website content"
+        title="Edit Team Member"
+        description={`Update ${member.name}'s profile and photo.`}
+      />
+      <AdminPanel className="p-5 sm:p-6">
         <TeamMemberForm token={token} member={member} />
-      </div>
+      </AdminPanel>
     </div>
   );
 }

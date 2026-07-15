@@ -4,8 +4,10 @@ import { useEffect, useState } from 'react';
 import { api } from '@/lib/api';
 import { normalizePage } from '@/lib/pages';
 
-const inputClass =
-  'mt-1 w-full rounded-md border border-slate-200 px-3 py-2 text-sm text-navy focus:border-gold focus:outline-none focus:ring-1 focus:ring-gold';
+import {
+  adminFieldClass as inputClass,
+  adminPrimaryBtnClass,
+} from '@/lib/adminUi';
 
 const emptySection = { heading: '', body: '' };
 const emptyHighlight = { title: '', body: '' };
@@ -111,7 +113,7 @@ export default function PageEditorForm({ token, slug, pageLabel }) {
         </p>
       )}
 
-      <div className="rounded-lg border border-slate-200 bg-white p-6 space-y-4">
+      <div className="border border-slate-200 bg-white p-6 space-y-4">
         <div>
           <label className="block text-sm font-medium text-navy">Page title</label>
           <input
@@ -133,7 +135,7 @@ export default function PageEditorForm({ token, slug, pageLabel }) {
         </div>
       </div>
 
-      <div className="rounded-lg border border-slate-200 bg-white p-6">
+      <div className="border border-slate-200 bg-white p-6">
         <div className="flex items-center justify-between">
           <h2 className="font-semibold text-navy">Content sections</h2>
           <button
@@ -178,7 +180,7 @@ export default function PageEditorForm({ token, slug, pageLabel }) {
         </div>
       </div>
 
-      <div className="rounded-lg border border-slate-200 bg-white p-6">
+      <div className="border border-slate-200 bg-white p-6">
         <div className="flex items-center justify-between">
           <h2 className="font-semibold text-navy">Highlight cards</h2>
           <button
@@ -229,7 +231,7 @@ export default function PageEditorForm({ token, slug, pageLabel }) {
       <button
         type="submit"
         disabled={loading}
-        className="rounded-md bg-gold px-6 py-2.5 text-sm font-semibold text-navy-deep hover:bg-gold-hover disabled:opacity-60"
+        className={adminPrimaryBtnClass}
       >
         {loading ? 'Saving…' : 'Save page'}
       </button>

@@ -5,8 +5,11 @@ import { useRouter } from 'next/navigation';
 import { api } from '@/lib/api';
 import { getInitials, normalizeTeamMember, toTeamPayload } from '@/lib/team';
 
-const inputClass =
-  'mt-1 w-full rounded-md border border-slate-200 px-3 py-2 text-sm text-navy focus:border-gold focus:outline-none focus:ring-1 focus:ring-gold';
+import {
+  adminFieldClass as inputClass,
+  adminPrimaryBtnClass,
+  adminSecondaryBtnClass,
+} from '@/lib/adminUi';
 
 const emptyForm = {
   name: '',
@@ -94,13 +97,13 @@ export default function TeamMemberForm({ token, member }) {
   return (
     <form onSubmit={handleSubmit} className="max-w-2xl space-y-6">
       {error && (
-        <p className="rounded-md bg-red-50 px-4 py-3 text-sm text-red-700" role="alert">
+        <p className="border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700" role="alert">
           {error}
         </p>
       )}
 
       {isEdit && (
-        <div className="rounded-lg border border-slate-200 bg-white p-6">
+        <div className="border-b border-slate-200 pb-6">
           <p className="text-sm font-medium text-navy">Photo</p>
           <div className="mt-3 flex flex-wrap items-center gap-4">
             {photoUrl ? (
@@ -130,95 +133,89 @@ export default function TeamMemberForm({ token, member }) {
         </div>
       )}
 
-      <div className="rounded-lg border border-slate-200 bg-white p-6">
-        <div className="grid gap-4 sm:grid-cols-2">
-          <div className="sm:col-span-2">
-            <label className="block text-sm font-medium text-navy">Name</label>
-            <input
-              type="text"
-              name="name"
-              value={form.name}
-              onChange={handleChange}
-              required
-              className={inputClass}
-            />
-          </div>
+      <div className="grid gap-4 sm:grid-cols-2">
+        <div className="sm:col-span-2">
+          <label className="block text-sm font-medium text-navy">Name</label>
+          <input
+            type="text"
+            name="name"
+            value={form.name}
+            onChange={handleChange}
+            required
+            className={inputClass}
+          />
+        </div>
 
-          <div className="sm:col-span-2">
-            <label className="block text-sm font-medium text-navy">Role / title</label>
-            <input
-              type="text"
-              name="role"
-              value={form.role}
-              onChange={handleChange}
-              required
-              placeholder="e.g. Sales Manager"
-              className={inputClass}
-            />
-          </div>
+        <div className="sm:col-span-2">
+          <label className="block text-sm font-medium text-navy">Role / title</label>
+          <input
+            type="text"
+            name="role"
+            value={form.role}
+            onChange={handleChange}
+            required
+            placeholder="e.g. Sales Manager"
+            className={inputClass}
+          />
+        </div>
 
-          <div className="sm:col-span-2">
-            <label className="block text-sm font-medium text-navy">Bio</label>
-            <textarea
-              name="bio"
-              value={form.bio}
-              onChange={handleChange}
-              rows={4}
-              className={inputClass}
-            />
-          </div>
+        <div className="sm:col-span-2">
+          <label className="block text-sm font-medium text-navy">Bio</label>
+          <textarea
+            name="bio"
+            value={form.bio}
+            onChange={handleChange}
+            rows={4}
+            className={inputClass}
+          />
+        </div>
 
-          <div>
-            <label className="block text-sm font-medium text-navy">Email</label>
-            <input
-              type="email"
-              name="email"
-              value={form.email}
-              onChange={handleChange}
-              className={inputClass}
-            />
-          </div>
+        <div>
+          <label className="block text-sm font-medium text-navy">Email</label>
+          <input
+            type="email"
+            name="email"
+            value={form.email}
+            onChange={handleChange}
+            className={inputClass}
+          />
+        </div>
 
-          <div>
-            <label className="block text-sm font-medium text-navy">Sort order</label>
-            <input
-              type="number"
-              name="sortOrder"
-              min="0"
-              value={form.sortOrder}
-              onChange={handleChange}
-              className={inputClass}
-            />
-          </div>
+        <div>
+          <label className="block text-sm font-medium text-navy">Sort order</label>
+          <input
+            type="number"
+            name="sortOrder"
+            min="0"
+            value={form.sortOrder}
+            onChange={handleChange}
+            className={inputClass}
+          />
+        </div>
 
-          <div className="flex items-center gap-2 sm:col-span-2">
-            <input
-              type="checkbox"
-              id="isPublished"
-              name="isPublished"
-              checked={form.isPublished}
-              onChange={handleChange}
-              className="rounded border-slate-300 text-gold focus:ring-gold"
-            />
-            <label htmlFor="isPublished" className="text-sm text-navy">
-              Published on website
-            </label>
-          </div>
+        <div className="flex items-center gap-2 sm:col-span-2">
+          <input
+            type="checkbox"
+            id="isPublished"
+            name="isPublished"
+            checked={form.isPublished}
+            onChange={handleChange}
+            className="border-slate-300 text-gold focus:ring-gold"
+          />
+          <label htmlFor="isPublished" className="text-sm text-navy">
+            Published on website
+          </label>
         </div>
       </div>
 
-      <div className="flex gap-3">
-        <button
-          type="submit"
-          disabled={loading}
-          className="rounded-md bg-gold px-6 py-2.5 text-sm font-semibold text-navy-deep hover:bg-gold-hover disabled:opacity-60"
-        >
+      <div className="flex gap-3 pt-2">
+        <button type="submit" disabled={loading} className={adminPrimaryBtnClass}>
           {loading ? 'Saving…' : isEdit ? 'Save changes' : 'Create & add photo'}
         </button>
         <button
           type="button"
           onClick={() => router.push('/admin/team')}
-          className="rounded-md border border-slate-200 px-6 py-2.5 text-sm font-medium text-navy hover:bg-slate-light"
+          className={adminSecondaryBtnClass}
         >
           Cancel
         </button>

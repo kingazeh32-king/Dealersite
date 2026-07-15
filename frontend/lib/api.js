@@ -142,6 +142,40 @@ export const api = {
     return data;
   },
 
+  uploadPropertyFloorPlan: async (token, id, file) => {
+    const formData = new FormData();
+    formData.append('floorplan', file);
+
+    const res = await fetch(`${API_URL}/properties/admin/${id}/floorplan`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` },
+      body: formData,
+    });
+
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      throw new ApiError(data.error || 'Floor plan upload failed', res.status, data.details);
+    }
+    return data;
+  },
+
+  uploadPropertyVirtualTour: async (token, id, file) => {
+    const formData = new FormData();
+    formData.append('virtual_tour', file);
+
+    const res = await fetch(`${API_URL}/properties/admin/${id}/virtual-tour`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` },
+      body: formData,
+    });
+
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      throw new ApiError(data.error || 'Virtual tour upload failed', res.status, data.details);
+    }
+    return data;
+  },
+
   updatePropertyImages: (token, id, images) =>
     request(`/properties/admin/${id}/images`, {
       method: 'PUT',

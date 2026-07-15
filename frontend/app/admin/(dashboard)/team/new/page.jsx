@@ -1,20 +1,22 @@
-'use client';
+﻿'use client';
 
 import { useAuth } from '@/context/AuthContext';
 import TeamMemberForm from '@/components/admin/TeamMemberForm';
+import AdminPageHeader from '@/components/admin/AdminPageHeader';
+import AdminPanel from '@/components/admin/AdminPanel';
 
-export default function NewTeamMemberPage() {
+export default function Page() {
   const { token } = useAuth();
-
   return (
-    <div>
-      <h1 className="text-2xl font-bold text-navy">Add Team Member</h1>
-      <p className="mt-1 text-sm text-slate">
-        Create the profile first — you&apos;ll be able to upload a photo on the next screen.
-      </p>
-      <div className="mt-8">
+    <div className="space-y-6">
+      <AdminPageHeader
+        eyebrow="Website content"
+        title="Add Team Member"
+        description="Create the profile first, then upload a photo on the edit page."
+      />
+      <AdminPanel className="p-5 sm:p-6">
         <TeamMemberForm token={token} />
-      </div>
+      </AdminPanel>
     </div>
   );
 }
