@@ -2,7 +2,13 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const logger = require('./utils/logger');
-const { clientUrl, clientUrls, upload } = require('./config/env');
+const {
+  clientUrl,
+  clientUrls,
+  upload,
+  isProduction,
+  storage,
+} = require('./config/env');
 const apiRoutes = require('./routes');
 const { notFound, errorHandler } = require('./middleware/errorHandler');
 const requestLogger = require('./middleware/requestLogger');
@@ -11,15 +17,15 @@ const app = express();
 
 const allowedOrigins = Array.isArray(clientUrls) ? clientUrls : [clientUrl];
 
-if (!process.env.CLIENT_URL) {
+if (!process.env.CLIENT_URL && !process.env.CLIENT_URLS) {
   logger.warn('CORS origin not explicitly configured. Using default:', clientUrl);
 } else {
   logger.info('CORS allowed origins:', allowedOrigins.join(', '));
 }
 
-// CORS configuration with validation
 const corsOptions = {
   origin(origin, callback) {
+    // Non-browser clients (curl, server-to-server) often omit Origin
     if (!origin) {
       callback(null, true);
       return;
@@ -39,7 +45,9 @@ const corsOptions = {
       }
     });
 
-    const isLocalhostOrigin = /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/i.test(origin);
+    const isLocalhostOrigin =
+      !isProduction &&
+      /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/i.test(origin);
 
     if (isConfiguredOrigin || isLocalhostOrigin) {
       callback(null, true);
@@ -55,10 +63,12 @@ app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Request logging middleware
 app.use(requestLogger);
 
-app.use('/uploads', express.static(path.join(process.cwd(), upload.dir)));
+// Local disk uploads are served by Express; S3 files use their public URL
+if (storage.driver === 'local') {
+  app.use('/uploads', express.static(path.join(process.cwd(), upload.dir)));
+}
 
 app.use('/api', apiRoutes);
 

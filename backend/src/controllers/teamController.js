@@ -89,7 +89,8 @@ async function uploadPhoto(req, res, next) {
       return res.status(400).json({ error: 'No photo uploaded' });
     }
 
-    const photoUrl = `/uploads/team/${req.file.filename}`;
+    const { filePublicUrl } = require('../utils/upload');
+    const photoUrl = filePublicUrl(req.file, 'team');
     const updated = await db.team.update(id, { photo_url: photoUrl });
 
     res.json({ member: updated, photo_url: photoUrl });

@@ -139,19 +139,13 @@ async function uploadImages(req, res, next) {
       return res.status(404).json({ error: 'Property not found' });
     }
 
-    // Debug: log incoming files for troubleshooting uploads
-    // Remove or disable these logs in production
-    console.log('uploadImages: received files:', (req.files || []).map(f => f && f.filename));
-
-    const newPaths = (req.files || []).map(
-      (f) => `/uploads/properties/${f.filename}`
+    const { filePublicUrl } = require('../utils/upload');
+    const newPaths = (req.files || []).map((f) =>
+      filePublicUrl(f, 'properties')
     );
 
     const images = [...(property.images || []), ...newPaths];
     const updated = await db.properties.update(id, { images });
-
-    // Debug: log updated property images
-    console.log('uploadImages: updated property id=%d images=%o', id, updated?.images);
 
     res.json({ property: updated });
   } catch (err) {

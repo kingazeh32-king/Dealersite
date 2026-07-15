@@ -50,7 +50,8 @@ async function uploadLogo(req, res, next) {
       return res.status(400).json({ error: 'No logo file uploaded' });
     }
 
-    const logoUrl = `/uploads/site/${req.file.filename}`;
+    const { filePublicUrl } = require('../utils/upload');
+    const logoUrl = filePublicUrl(req.file, 'site');
     const settings = await db.settings.update({ logo_url: logoUrl });
 
     res.json({ settings, logo_url: logoUrl });

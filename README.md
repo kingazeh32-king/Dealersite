@@ -59,7 +59,7 @@ API runs at `http://localhost:5000`. Health check: `GET /api/health`.
 
 ```bash
 cd frontend
-cp .env.local.example .env.local   # if present; otherwise create:
+cp .env.local.example .env.local
 # NEXT_PUBLIC_API_URL=http://localhost:5000/api
 
 npm install
@@ -125,35 +125,40 @@ Without SMTP configured, notifications are **logged to the backend console** onl
 
 ### Backend (example)
 
-1. Set environment variables on your host (same as `backend/.env.example`).
-2. Set `NODE_ENV=production` and `CLIENT_URL` to your frontend origin(s) as a comma-separated list (for example `https://yourdomain.com,https://your-preview.vercel.app`).
-3. Run migrations against production DB:
+1. Copy `backend/.env.example` and set the same variables on your host.
+2. Set `NODE_ENV=production`. The API **refuses to start** without a real `JWT_SECRET` and `CLIENT_URL`.
+3. Set `CLIENT_URL` to your frontend origin(s) as a comma-separated list (for example `https://yourdomain.com,https://your-preview.vercel.app`). Localhost is **not** auto-allowed in production.
+4. Run migrations against production DB:
 
    ```bash
    npm run db:migrate
    ```
 
-4. Ensure the `uploads/` directory is writable and persisted (volume or object storage). Uploaded images are served from `/uploads/...`.
+5. **Persist uploads** (pick one):
 
-5. Start with `npm start`.
+   - **Volume (simple):** Mount a persistent volume and set `UPLOAD_DIR` to that path (e.g. `/data/uploads`). Files are served at `/uploads/...`.
+   - **Object storage (recommended):** Set `S3_BUCKET`, `S3_ACCESS_KEY_ID`, `S3_SECRET_ACCESS_KEY`, and usually `S3_PUBLIC_URL` (works with AWS S3, Cloudflare R2, MinIO, etc.). See `backend/.env.example`.
+
+6. Start with `npm start`.
 
 ### Frontend (Vercel example)
 
 1. Import the `frontend` folder as a Vercel project.
-2. Set `NEXT_PUBLIC_API_URL=https://api.yourdomain.com/api`.
-3. Add your API host to `next.config.mjs` `images.remotePatterns` if using Next Image for uploads.
+2. Copy from `frontend/.env.local.example` and set `NEXT_PUBLIC_API_URL=https://api.yourdomain.com/api`.
+3. If using S3/R2/CDN for images, set `NEXT_PUBLIC_IMAGE_HOSTS` to those hostnames (comma-separated). `next.config.mjs` also picks up the API host from `NEXT_PUBLIC_API_URL`.
 4. Deploy.
 
 ### Production checklist
 
-- [ ] Change default admin password
-- [ ] Use a long random `JWT_SECRET`
+- [ ] Change default admin password (`admin@dealersite.com` / `ChangeMeNow!2025` from seed)
+- [ ] Set a long random `JWT_SECRET` (required — server exits without it)
+- [ ] Set `CLIENT_URL` to production frontend origin(s) (required)
+- [ ] Persist uploads via volume or S3
 - [ ] Configure SMTP for real email alerts
 - [ ] Set real contact details in **Admin → Site Settings**
 - [ ] Use HTTPS everywhere
 - [ ] Run `npm run db:migrate` on production database
 - [ ] Back up PostgreSQL regularly
-
 ## Useful scripts
 
 **Backend** (`cd backend`):

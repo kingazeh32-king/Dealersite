@@ -2,8 +2,15 @@
 /backend/node_modules/
 /frontend/node_modules/
 
-# Environment files
-.env*
+# Environment files (keep *.example commitable)
+.env
+.env.*
+!.env.example
+!.env.*.example
+
+# Uploads & logs (runtime data — use a volume or S3 in production)
+/backend/uploads/
+/backend/logs/
 
 # Logs
 npm-debug.log*

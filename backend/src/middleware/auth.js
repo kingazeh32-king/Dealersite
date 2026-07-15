@@ -2,12 +2,6 @@ const jwt = require('jsonwebtoken');
 const { jwt: jwtConfig } = require('../config/env');
 const db = require('../db/queries');
 
-const DEV_FALLBACK_ADMIN = Object.freeze({
-  id: 1,
-  name: 'Site Admin',
-  email: 'admin@dealersite.com',
-});
-
 function authenticate(req, res, next) {
   const header = req.headers.authorization;
 
@@ -28,11 +22,6 @@ function authenticate(req, res, next) {
 
 async function loadAdmin(req, res, next) {
   try {
-    if (req.admin?.email === DEV_FALLBACK_ADMIN.email) {
-      req.admin = { ...DEV_FALLBACK_ADMIN, ...req.admin };
-      return next();
-    }
-
     const admin = await db.admins.findById(req.admin.id);
     if (!admin) {
       return res.status(401).json({ error: 'Admin account not found' });
@@ -40,10 +29,6 @@ async function loadAdmin(req, res, next) {
     req.admin = admin;
     next();
   } catch (err) {
-    if (req.admin?.email === DEV_FALLBACK_ADMIN.email) {
-      req.admin = { ...DEV_FALLBACK_ADMIN, ...req.admin };
-      return next();
-    }
     next(err);
   }
 }

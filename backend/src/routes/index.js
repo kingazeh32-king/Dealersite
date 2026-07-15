@@ -9,7 +9,6 @@ const settingsRoutes = require('./settings');
 const teamRoutes = require('./team');
 const pagesRoutes = require('./pages');
 const testimonialsRoutes = require('./testimonials');
-const debugRoutes = require('./debug');
 
 const router = Router();
 
@@ -27,8 +26,5 @@ router.use('/settings', settingsRoutes);
 router.use('/team', teamRoutes);
 router.use('/pages', pagesRoutes);
 router.use('/testimonials', testimonialsRoutes);
-
-// Debug routes (temporary)
-router.use('/debug', debugRoutes);
 
 module.exports = router;

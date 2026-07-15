@@ -107,9 +107,7 @@ export function normalizeSettings(row) {
   if (!row) return defaultSiteSettings;
 
   const logoPath = row.logo_url || defaultSiteSettings.logoUrl;
-  const resolvedLogo = logoPath.startsWith('/uploads/')
-    ? resolveImageUrl(logoPath)
-    : logoPath;
+  const resolvedLogo = resolveImageUrl(logoPath) || logoPath;
 
   return {
     siteName: row.site_name || defaultSiteSettings.siteName,

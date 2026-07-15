@@ -6,57 +6,32 @@ const { jwt: jwtConfig, clientUrl } = require('../config/env');
 const { sendPasswordResetEmail } = require('../utils/mail');
 
 const RESET_EXPIRY_HOURS = 1;
-const FALLBACK_ADMIN = Object.freeze({
-  id: 1,
-  name: 'Site Admin',
-  email: 'admin@dealersite.com',
-});
-const FALLBACK_ADMIN_PASSWORD = 'ChangeMeNow!2025';
-
-function isFallbackAdminLogin(email, password) {
-  return process.env.NODE_ENV !== 'production'
-    && email === FALLBACK_ADMIN.email
-    && password === FALLBACK_ADMIN_PASSWORD;
-}
-
-function isDatabaseUnavailableError(err) {
-  return (
-    err?.code === 'ECONNREFUSED' ||
-    err?.code === 'ETIMEDOUT' ||
-    err?.message?.includes('ECONNREFUSED') ||
-    err?.message?.includes('timeout') ||
-    err?.message?.includes('connect')
-  );
-}
 
 async function login(req, res, next) {
   try {
     const { email, password } = req.body;
     let admin = null;
-    let usingFallback = false;
 
-    if (isFallbackAdminLogin(email, password)) {
-      usingFallback = true;
-      admin = {
-        ...FALLBACK_ADMIN,
-        password_hash: '$2a$10$devFallbackHash',
-      };
-    } else {
-      try {
-        admin = await db.admins.findByEmail(email);
-      } catch (err) {
-        if (!isDatabaseUnavailableError(err)) {
-          throw err;
-        }
-        admin = null;
+    try {
+      admin = await db.admins.findByEmail(email);
+    } catch (err) {
+      if (
+        err?.code === 'ECONNREFUSED' ||
+        err?.code === 'ETIMEDOUT' ||
+        err?.message?.includes('ECONNREFUSED') ||
+        err?.message?.includes('timeout') ||
+        err?.message?.includes('connect')
+      ) {
+        return res.status(503).json({ error: 'Database unavailable' });
       }
+      throw err;
     }
 
     if (!admin) {
       return res.status(401).json({ error: 'Invalid email or password' });
     }
 
-    const valid = usingFallback || (await bcrypt.compare(password, admin.password_hash));
+    const valid = await bcrypt.compare(password, admin.password_hash);
     if (!valid) {
       return res.status(401).json({ error: 'Invalid email or password' });
     }
