@@ -10,18 +10,28 @@ export default function AdminResourcesPage() {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const load = useCallback(async () => {
-    if (!token) return;
-    setLoading(true);
-    try {
-      const data = await api.getAdminResources(token, { limit: 100 });
-      setItems(data.rows || []);
-    } finally {
-      setLoading(false);
-    }
-  }, [token]);
+  useEffect(() => {
+    let cancelled = false;
 
-  useEffect(() => { load(); }, [load]);
+    async function load() {
+      if (!token) return;
+      setLoading(true);
+      try {
+        const data = await api.getAdminResources(token);
+        if (cancelled) return;
+        setItems(data.rows || []);
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+        }
+      }
+    }
+
+    void load();
+    return () => {
+      cancelled = true;
+    };
+  }, [token]);
 
   async function handleDelete(id, title) {
     if (!confirm(`Delete "${title}"?`)) return;

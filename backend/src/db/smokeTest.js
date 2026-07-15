@@ -16,7 +16,7 @@ async function smokeTest() {
   console.log(`Financing FAQs: ${faqs.length}`);
 
   const admin = await db.admins.findByEmail('admin@dealersite.com');
-  const passwordOk = await bcrypt.compare('admin123', admin.password_hash);
+  const passwordOk = await bcrypt.compare('ChangeMeNow!2025', admin.password_hash);
   console.log('Admin password check:', passwordOk ? 'OK' : 'FAILED');
 
   const { total: resourceCount } = await db.resources.findAll({ type: 'buying-guide' });

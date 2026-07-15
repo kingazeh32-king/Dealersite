@@ -11,6 +11,12 @@ const app = express();
 
 const allowedOrigins = Array.isArray(clientUrls) ? clientUrls : [clientUrl];
 
+if (!process.env.CLIENT_URL) {
+  logger.warn('CORS origin not explicitly configured. Using default:', clientUrl);
+} else {
+  logger.info('CORS allowed origins:', allowedOrigins.join(', '));
+}
+
 // CORS configuration with validation
 const corsOptions = {
   origin(origin, callback) {
@@ -44,10 +50,6 @@ const corsOptions = {
   },
   credentials: true,
 };
-
-if (!clientUrl || clientUrl === 'http://localhost:3000') {
-  logger.warn('CORS origin not explicitly configured. Using default:', clientUrl);
-}
 
 app.use(cors(corsOptions));
 app.use(express.json());

@@ -25,7 +25,18 @@ export function useProperties(filters = {}) {
   }, [category, sort, limit, offset]);
 
   useEffect(() => {
-    refetch();
+    let cancelled = false;
+
+    const start = () => {
+      if (cancelled) return;
+      void refetch();
+    };
+
+    queueMicrotask(start);
+
+    return () => {
+      cancelled = true;
+    };
   }, [refetch]);
 
   return { homes, total, loading, error, refetch };

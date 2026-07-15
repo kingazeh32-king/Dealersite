@@ -6,17 +6,12 @@ import { resolveImageUrl } from '@/lib/images';
 
 export default function PropertyImageManager({ property, token, onUpdate }) {
   const fileRef = useRef(null);
-  const [images, setImages] = useState(property.images || []);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState('');
-
-  useEffect(() => {
-    setImages(property.images || []);
-  }, [property.images]);
+  const images = property.images || [];
 
   async function saveImages(nextImages) {
     const data = await api.updatePropertyImages(token, property.id, nextImages);
-    setImages(data.property.images || []);
     onUpdate?.(data.property);
   }
 
@@ -29,7 +24,6 @@ export default function PropertyImageManager({ property, token, onUpdate }) {
 
     try {
       const data = await api.uploadPropertyImages(token, property.id, files);
-      setImages(data.property.images || []);
       onUpdate?.(data.property);
       if (fileRef.current) fileRef.current.value = '';
     } catch (err) {

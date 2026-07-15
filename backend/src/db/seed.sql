@@ -5,13 +5,14 @@
 
 -- ============================================================
 -- ADMIN USER
--- Password: admin123 (bcrypt hash — change in production!)
+-- Password: ChangeMeNow!2025 (bcrypt hash)
+-- Change this immediately in production.
 -- ============================================================
 INSERT INTO admins (name, email, password_hash) VALUES
 (
   'Site Admin',
   'admin@dealersite.com',
-  '$2a$10$R/otdFNw9NmgTCPJg79eB.bgAFUCUOnNIjNo8L.EC/288qKt3oodG'
+  '$2a$10$/WTmSqyBWC6PnB6LV2FxjOHH79qTsIZecOlTCCZlXqBsAiSHXoODC'
 );
 
 

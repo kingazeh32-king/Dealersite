@@ -19,7 +19,7 @@ async function init() {
     await runSQL('seed.sql');
     console.log('\n🎉 Database initialized successfully!');
     console.log('   Tables: admins, site_settings, site_pages, testimonials, team_members, properties, inquiries, resources, faqs, leads');
-    console.log('   Admin login: admin@dealersite.com / admin123');
+    console.log('   Default admin login: admin@dealersite.com / ChangeMeNow!2025');
   } catch (err) {
     console.error('\n❌ Database initialization failed:', err.message);
     process.exit(1);

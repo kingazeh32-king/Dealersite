@@ -21,7 +21,18 @@ export default function AdminInquiriesPage() {
   }, [token]);
 
   useEffect(() => {
-    load();
+    let cancelled = false;
+
+    const start = () => {
+      if (cancelled) return;
+      void load();
+    };
+
+    queueMicrotask(start);
+
+    return () => {
+      cancelled = true;
+    };
   }, [load]);
 
   async function handleStatusChange(id, status) {

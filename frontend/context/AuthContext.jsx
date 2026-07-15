@@ -38,12 +38,13 @@ export function AuthProvider({ children }) {
 
   useEffect(() => {
     const stored = readStoredToken();
+
     if (!stored) {
-      setLoading(false);
+      queueMicrotask(() => setLoading(false));
       return;
     }
 
-    api
+    void api
       .getMe(stored)
       .then((data) => {
         setToken(stored);

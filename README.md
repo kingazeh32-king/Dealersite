@@ -44,7 +44,7 @@ npm run db:verify    # optional sanity check
 Default admin login (change before production):
 
 - **Email:** `admin@dealersite.com`
-- **Password:** `admin123`
+- **Password:** `ChangeMeNow!2025`
 
 ### 2. Backend
 
@@ -126,7 +126,7 @@ Without SMTP configured, notifications are **logged to the backend console** onl
 ### Backend (example)
 
 1. Set environment variables on your host (same as `backend/.env.example`).
-2. Set `NODE_ENV=production`, `CLIENT_URL` to your frontend URL (e.g. `https://yourdomain.com`).
+2. Set `NODE_ENV=production` and `CLIENT_URL` to your frontend origin(s) as a comma-separated list (for example `https://yourdomain.com,https://your-preview.vercel.app`).
 3. Run migrations against production DB:
 
    ```bash

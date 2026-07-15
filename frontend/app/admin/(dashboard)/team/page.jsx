@@ -10,20 +10,28 @@ export default function AdminTeamPage() {
   const [members, setMembers] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const load = useCallback(async () => {
-    if (!token) return;
-    setLoading(true);
-    try {
-      const data = await api.getAdminTeamMembers(token);
-      setMembers(data.rows || []);
-    } finally {
-      setLoading(false);
-    }
-  }, [token]);
-
   useEffect(() => {
-    load();
-  }, [load]);
+    let cancelled = false;
+
+    async function load() {
+      if (!token) return;
+      setLoading(true);
+      try {
+        const data = await api.getAdminTeam(token);
+        if (cancelled) return;
+        setItems(data.rows || []);
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+        }
+      }
+    }
+
+    void load();
+    return () => {
+      cancelled = true;
+    };
+  }, [token]);
 
   async function handleDelete(id, name) {
     if (!confirm(`Remove "${name}" from the team section?`)) return;

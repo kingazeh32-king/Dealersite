@@ -1,17 +1,21 @@
 require('dotenv').config();
 
 function parseAllowedOrigins(rawValue) {
-  return (rawValue || 'http://localhost:3000')
+  const parsed = (rawValue || 'http://localhost:3000')
     .split(',')
     .map((value) => value.trim())
     .filter(Boolean);
+
+  return parsed.length ? parsed : ['http://localhost:3000'];
 }
+
+const clientUrls = parseAllowedOrigins(process.env.CLIENT_URL || process.env.CLIENT_URLS);
 
 module.exports = {
   port:     parseInt(process.env.PORT, 10) || 5000,
   nodeEnv:  process.env.NODE_ENV || 'development',
-  clientUrl: process.env.CLIENT_URL || 'http://localhost:3000',
-  clientUrls: parseAllowedOrigins(process.env.CLIENT_URL || 'http://localhost:3000'),
+  clientUrl: clientUrls[0] || 'http://localhost:3000',
+  clientUrls,
   jwt: {
     secret:    process.env.JWT_SECRET || 'replace-with-a-long-random-secret-for-production',
     expiresIn: process.env.JWT_EXPIRES_IN || '7d',

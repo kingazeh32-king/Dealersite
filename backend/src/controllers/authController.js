@@ -11,9 +11,12 @@ const FALLBACK_ADMIN = Object.freeze({
   name: 'Site Admin',
   email: 'admin@dealersite.com',
 });
+const FALLBACK_ADMIN_PASSWORD = 'ChangeMeNow!2025';
 
 function isFallbackAdminLogin(email, password) {
-  return email === FALLBACK_ADMIN.email && password === 'admin123';
+  return process.env.NODE_ENV !== 'production'
+    && email === FALLBACK_ADMIN.email
+    && password === FALLBACK_ADMIN_PASSWORD;
 }
 
 function isDatabaseUnavailableError(err) {

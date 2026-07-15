@@ -22,7 +22,18 @@ export default function EditPropertyPage() {
   }, [token, id]);
 
   useEffect(() => {
-    load();
+    let cancelled = false;
+
+    const start = () => {
+      if (cancelled) return;
+      void load();
+    };
+
+    queueMicrotask(start);
+
+    return () => {
+      cancelled = true;
+    };
   }, [load]);
 
   if (loading) {

@@ -31,7 +31,18 @@ export default function AdminLeadsPage() {
   }, [token]);
 
   useEffect(() => {
-    load();
+    let cancelled = false;
+
+    const start = () => {
+      if (cancelled) return;
+      void load();
+    };
+
+    queueMicrotask(start);
+
+    return () => {
+      cancelled = true;
+    };
   }, [load]);
 
   return (
