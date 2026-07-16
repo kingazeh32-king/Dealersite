@@ -93,6 +93,22 @@ export const api = {
     }
     return data;
   },
+  uploadFavicon: async (token, file) => {
+    const formData = new FormData();
+    formData.append('favicon', file);
+
+    const res = await fetch(`${API_URL}/settings/favicon`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` },
+      body: formData,
+    });
+
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      throw new ApiError(data.error || 'Favicon upload failed', res.status, data.details);
+    }
+    return data;
+  },
 
   // Auth (admin)
   login: (email, password) =>

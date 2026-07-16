@@ -60,6 +60,7 @@ CREATE TABLE site_settings (
   site_name       VARCHAR(255) NOT NULL DEFAULT 'Home Dealership',
   tagline         VARCHAR(255) DEFAULT 'Manufactured & Tiny Homes',
   logo_url        TEXT,
+  favicon_url     TEXT,
   contact_phone   VARCHAR(50) DEFAULT '(555) 123-4567',
   contact_email   VARCHAR(255) DEFAULT 'info@dealersite.com',
   contact_address VARCHAR(255) DEFAULT '123 Dealer Way, Suite 100',

@@ -54,10 +54,12 @@ export function resolveImageUrl(path) {
     return normalized;
   }
 
-  // Frontend public assets (default logo, etc.)
+  // Frontend public assets (default logo, favicon, etc.)
   if (
     normalized === '/logo.svg' ||
     normalized.startsWith('/logo.') ||
+    normalized === '/icon.svg' ||
+    normalized.startsWith('/icon.') ||
     normalized.startsWith('/icons/')
   ) {
     return normalized;

@@ -18,7 +18,11 @@ function errorHandler(err, req, res, _next) {
     return res.status(400).json({ error: 'File too large' });
   }
 
-  if (err.message && err.message.includes('Only JPEG')) {
+  if (err.message && (
+    err.message.includes('Only JPEG') ||
+    err.message.includes('Only PNG') ||
+    err.message.includes('favicon')
+  )) {
     logger.warn('Invalid file type uploaded', {
       message: err.message,
       path: req.path,

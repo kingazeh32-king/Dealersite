@@ -10,10 +10,10 @@ function pickFields(body) {
   return data;
 }
 
-/** Normalize logo paths so mangled absolute URLs become /uploads/... */
-function sanitizeLogoUrl(logoUrl) {
-  if (!logoUrl) return logoUrl;
-  const value = String(logoUrl).trim();
+/** Normalize media paths so mangled absolute URLs become /uploads/... */
+function sanitizeMediaUrl(mediaUrl) {
+  if (!mediaUrl) return mediaUrl;
+  const value = String(mediaUrl).trim();
   if (!value) return value;
   if (value.startsWith('/uploads/')) return value;
 
@@ -24,6 +24,14 @@ function sanitizeLogoUrl(logoUrl) {
   return value;
 }
 
+function selfHealMediaField(settings, field) {
+  const cleaned = sanitizeMediaUrl(settings[field]);
+  if (cleaned && cleaned !== settings[field]) {
+    return { [field]: cleaned };
+  }
+  return null;
+}
+
 async function get(req, res, next) {
   try {
     let settings = await db.settings.get();
@@ -32,11 +40,15 @@ async function get(req, res, next) {
       return res.status(404).json({ error: 'Site settings not found' });
     }
 
-    const cleaned = sanitizeLogoUrl(settings.logo_url);
-    if (cleaned && cleaned !== settings.logo_url) {
-      settings = (await db.settings.update({ logo_url: cleaned })) || {
+    const heal = {
+      ...selfHealMediaField(settings, 'logo_url'),
+      ...selfHealMediaField(settings, 'favicon_url'),
+    };
+
+    if (Object.keys(heal).length) {
+      settings = (await db.settings.update(heal)) || {
         ...settings,
-        logo_url: cleaned,
+        ...heal,
       };
     }
 
@@ -50,7 +62,10 @@ async function update(req, res, next) {
   try {
     const data = pickFields(req.body);
     if (data.logo_url !== undefined) {
-      data.logo_url = sanitizeLogoUrl(data.logo_url);
+      data.logo_url = sanitizeMediaUrl(data.logo_url);
+    }
+    if (data.favicon_url !== undefined) {
+      data.favicon_url = sanitizeMediaUrl(data.favicon_url);
     }
 
     if (!Object.keys(data).length) {
@@ -85,4 +100,20 @@ async function uploadLogo(req, res, next) {
   }
 }
 
-module.exports = { get, update, uploadLogo };
+async function uploadFavicon(req, res, next) {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: 'No favicon file uploaded' });
+    }
+
+    const { filePublicUrl } = require('../utils/upload');
+    const faviconUrl = filePublicUrl(req.file, 'site');
+    const settings = await db.settings.update({ favicon_url: faviconUrl });
+
+    res.json({ settings, favicon_url: faviconUrl });
+  } catch (err) {
+    next(err);
+  }
+}
+
+module.exports = { get, update, uploadLogo, uploadFavicon };

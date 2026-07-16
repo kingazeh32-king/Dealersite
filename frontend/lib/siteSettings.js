@@ -52,6 +52,7 @@ export const defaultSiteSettings = {
   siteName: process.env.NEXT_PUBLIC_SITE_NAME || 'Manufactured Mobile Homes of Texas',
   tagline: 'Quality homes for Texas living',
   logoUrl: process.env.NEXT_PUBLIC_LOGO_SRC || '/logo.svg',
+  faviconUrl: process.env.NEXT_PUBLIC_FAVICON_SRC || '/icon.svg',
   hero: defaultHero,
   trustSignals: defaultTrustSignals,
   howItWorks: defaultHowItWorks,
@@ -108,11 +109,14 @@ export function normalizeSettings(row) {
 
   const logoPath = row.logo_url || defaultSiteSettings.logoUrl;
   const resolvedLogo = resolveImageUrl(logoPath) || logoPath;
+  const faviconPath = row.favicon_url || defaultSiteSettings.faviconUrl;
+  const resolvedFavicon = resolveImageUrl(faviconPath) || faviconPath;
 
   return {
     siteName: row.site_name || defaultSiteSettings.siteName,
     tagline: row.tagline || defaultSiteSettings.tagline,
     logoUrl: resolvedLogo || defaultSiteSettings.logoUrl,
+    faviconUrl: resolvedFavicon || defaultSiteSettings.faviconUrl,
     hero: normalizeHero(row.hero_content),
     trustSignals:
       Array.isArray(row.trust_signals) && row.trust_signals.length
@@ -130,13 +134,20 @@ export function normalizeSettings(row) {
   };
 }
 
-function toStoredLogoPath(logoUrl) {
-  if (!logoUrl) return logoUrl;
-  const value = String(logoUrl).trim();
+function toStoredMediaPath(mediaUrl) {
+  if (!mediaUrl) return mediaUrl;
+  const value = String(mediaUrl).trim();
   if (!value) return value;
 
   // Keep frontend public defaults as-is
-  if (value === '/logo.svg' || value.startsWith('/logo.')) return value;
+  if (
+    value === '/logo.svg' ||
+    value.startsWith('/logo.') ||
+    value === '/icon.svg' ||
+    value.startsWith('/icon.')
+  ) {
+    return value;
+  }
 
   const uploadsMatch = value.match(/\/uploads\/[^\s?#]+/);
   if (uploadsMatch) return uploadsMatch[0];
@@ -158,7 +169,8 @@ export function toApiPayload(settings) {
   return {
     site_name: settings.siteName,
     tagline: settings.tagline,
-    logo_url: toStoredLogoPath(settings.logoUrl),
+    logo_url: toStoredMediaPath(settings.logoUrl),
+    favicon_url: toStoredMediaPath(settings.faviconUrl),
     contact_phone: settings.contact.phone,
     contact_email: settings.contact.email,
     contact_address: settings.contact.address,

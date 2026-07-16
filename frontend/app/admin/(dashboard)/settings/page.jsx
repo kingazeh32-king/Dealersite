@@ -14,7 +14,7 @@ export default function AdminSettingsPage() {
       <AdminPageHeader
         eyebrow="Settings"
         title="Site Settings"
-        description={`Manage your dealership name, logo, and contact details shown across the public site.${
+        description={`Manage your dealership name, logo, favicon, and contact details shown across the public site.${
           siteName ? ` Currently: ${siteName}.` : ''
         }`}
       />

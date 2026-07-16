@@ -7,13 +7,14 @@
  * ADMIN ROUTES (Protected):
  *   PUT  /api/settings                      - Update site settings
  *   POST /api/settings/logo                 - Upload site logo
+ *   POST /api/settings/favicon              - Upload site favicon
  */
 
 const { Router } = require('express');
 const { body } = require('express-validator');
 const { validate } = require('../middleware/validate');
 const { authenticate } = require('../middleware/auth');
-const { uploadSiteLogo } = require('../utils/upload');
+const { uploadSiteLogo, uploadSiteFavicon } = require('../utils/upload');
 const settingsController = require('../controllers/settingsController');
 
 const router = Router();
@@ -29,6 +30,7 @@ router.put(
     body('site_name').optional().trim().notEmpty(),
     body('tagline').optional().trim(),
     body('logo_url').optional().trim(),
+    body('favicon_url').optional().trim(),
     body('contact_phone').optional().trim(),
     body('contact_email').optional({ values: 'falsy' }).trim().isEmail().withMessage('Invalid email'),
     body('contact_address').optional().trim(),
@@ -48,6 +50,13 @@ router.post(
   authenticate,
   uploadSiteLogo.single('logo'),
   settingsController.uploadLogo
+);
+
+router.post(
+  '/favicon',
+  authenticate,
+  uploadSiteFavicon.single('favicon'),
+  settingsController.uploadFavicon
 );
 
 module.exports = router;

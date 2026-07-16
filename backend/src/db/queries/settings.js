@@ -6,6 +6,7 @@ const FIELDS = [
   'site_name',
   'tagline',
   'logo_url',
+  'favicon_url',
   'contact_phone',
   'contact_email',
   'contact_address',

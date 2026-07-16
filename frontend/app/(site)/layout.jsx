@@ -7,11 +7,17 @@ export const dynamic = 'force-dynamic';
 
 export async function generateMetadata() {
   const settings = await fetchSiteSettings();
+  const favicon = settings.faviconUrl || '/icon.svg';
 
   return {
     title: {
       default: `${settings.siteName} | ${settings.tagline}`,
       template: `%s | ${settings.siteName}`,
+    },
+    icons: {
+      icon: favicon,
+      shortcut: favicon,
+      apple: favicon,
     },
   };
 }

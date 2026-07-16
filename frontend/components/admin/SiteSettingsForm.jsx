@@ -16,6 +16,7 @@ function toForm(settings) {
     siteName: settings.siteName || '',
     tagline: settings.tagline || '',
     logoUrl: settings.logoUrl || '/logo.svg',
+    faviconUrl: settings.faviconUrl || '/icon.svg',
     contactPhone: settings.contact?.phone || '',
     contactEmail: settings.contact?.email || '',
     contactAddress: settings.contact?.address || '',
@@ -25,13 +26,15 @@ function toForm(settings) {
 }
 
 export default function SiteSettingsForm({ token, onSaved }) {
-  const fileRef = useRef(null);
+  const logoFileRef = useRef(null);
+  const faviconFileRef = useRef(null);
   const { setSettings } = useSiteSettings();
   const [form, setForm] = useState(null);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
-  const [uploading, setUploading] = useState(false);
+  const [uploadingLogo, setUploadingLogo] = useState(false);
+  const [uploadingFavicon, setUploadingFavicon] = useState(false);
 
   useEffect(() => {
     api
@@ -54,22 +57,53 @@ export default function SiteSettingsForm({ token, onSaved }) {
     const file = e.target.files?.[0];
     if (!file || !token) return;
 
-    setUploading(true);
+    setUploadingLogo(true);
     setError('');
     setSuccess('');
 
     try {
       const data = await api.uploadLogo(token, file);
       const normalized = normalizeSettings(data.settings);
-      setForm((prev) => ({ ...prev, logoUrl: normalized.logoUrl }));
+      setForm((prev) => ({
+        ...prev,
+        logoUrl: normalized.logoUrl,
+        faviconUrl: normalized.faviconUrl,
+      }));
       setSettings(normalized);
       setSuccess('Logo uploaded and saved. Refresh the public site to see it.');
       onSaved?.(normalized);
     } catch (err) {
       setError(err.message || 'Logo upload failed');
     } finally {
-      setUploading(false);
-      if (fileRef.current) fileRef.current.value = '';
+      setUploadingLogo(false);
+      if (logoFileRef.current) logoFileRef.current.value = '';
+    }
+  }
+
+  async function handleFaviconChange(e) {
+    const file = e.target.files?.[0];
+    if (!file || !token) return;
+
+    setUploadingFavicon(true);
+    setError('');
+    setSuccess('');
+
+    try {
+      const data = await api.uploadFavicon(token, file);
+      const normalized = normalizeSettings(data.settings);
+      setForm((prev) => ({
+        ...prev,
+        logoUrl: normalized.logoUrl,
+        faviconUrl: normalized.faviconUrl,
+      }));
+      setSettings(normalized);
+      setSuccess('Favicon uploaded and saved. Refresh the public site to see it.');
+      onSaved?.(normalized);
+    } catch (err) {
+      setError(err.message || 'Favicon upload failed');
+    } finally {
+      setUploadingFavicon(false);
+      if (faviconFileRef.current) faviconFileRef.current.value = '';
     }
   }
 
@@ -86,6 +120,7 @@ export default function SiteSettingsForm({ token, onSaved }) {
         siteName: form.siteName,
         tagline: form.tagline,
         logoUrl: form.logoUrl,
+        faviconUrl: form.faviconUrl,
         contact: {
           phone: form.contactPhone,
           email: form.contactEmail,
@@ -119,6 +154,7 @@ export default function SiteSettingsForm({ token, onSaved }) {
   }
 
   const previewSrc = resolveImageUrl(form.logoUrl) || form.logoUrl;
+  const faviconPreviewSrc = resolveImageUrl(form.faviconUrl) || form.faviconUrl;
 
   return (
     <form onSubmit={handleSubmit} className="space-y-10">
@@ -178,14 +214,45 @@ export default function SiteSettingsForm({ token, onSaved }) {
               </div>
               <div>
                 <input
-                  ref={fileRef}
+                  ref={logoFileRef}
                   type="file"
                   accept="image/jpeg,image/png,image/webp,image/gif,image/svg+xml"
                   onChange={handleLogoChange}
                   className="text-sm text-slate"
                 />
                 <p className="mt-1 text-xs text-slate">
-                  {uploading ? 'Uploading…' : 'JPEG, PNG, WebP, GIF, or SVG. Max 5 MB.'}
+                  {uploadingLogo ? 'Uploading…' : 'JPEG, PNG, WebP, GIF, or SVG. Max 5 MB.'}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="sm:col-span-2">
+            <label className="block text-sm font-medium text-navy">Favicon</label>
+            <p className="mt-1 text-xs text-slate">
+              Browser tab icon. Square PNG or SVG works best (32×32 or 64×64).
+            </p>
+            <div className="mt-2 flex flex-wrap items-center gap-4">
+              <div className="flex h-16 w-16 items-center justify-center border border-slate-200 bg-slate-light/50 p-2">
+                <img
+                  key={faviconPreviewSrc}
+                  src={faviconPreviewSrc}
+                  alt="Current favicon"
+                  className="h-10 w-10 object-contain"
+                />
+              </div>
+              <div>
+                <input
+                  ref={faviconFileRef}
+                  type="file"
+                  accept="image/png,image/svg+xml,image/x-icon,image/vnd.microsoft.icon,image/webp,image/gif,image/jpeg,.ico"
+                  onChange={handleFaviconChange}
+                  className="text-sm text-slate"
+                />
+                <p className="mt-1 text-xs text-slate">
+                  {uploadingFavicon
+                    ? 'Uploading…'
+                    : 'PNG, SVG, ICO, WebP, GIF, or JPEG. Max 2 MB.'}
                 </p>
               </div>
             </div>

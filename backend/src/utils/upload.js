@@ -147,6 +147,23 @@ const logoFilter = (_req, file, cb) => {
   }
 };
 
+const faviconFilter = (_req, file, cb) => {
+  const allowed = [
+    'image/png',
+    'image/webp',
+    'image/gif',
+    'image/svg+xml',
+    'image/x-icon',
+    'image/vnd.microsoft.icon',
+    'image/jpeg',
+  ];
+  if (allowed.includes(file.mimetype)) {
+    cb(null, true);
+  } else {
+    cb(new Error('Only PNG, SVG, ICO, WebP, GIF, or JPEG favicons are allowed'));
+  }
+};
+
 const uploadPropertyImages = buildMulter({
   folder: 'properties',
   destDir: propertiesDir,
@@ -159,6 +176,14 @@ const uploadSiteLogo = buildMulter({
   destDir: siteDir,
   nameFn: (file) => `logo-${Date.now()}${path.extname(file.originalname).toLowerCase()}`,
   fileFilter: logoFilter,
+});
+
+const uploadSiteFavicon = buildMulter({
+  folder: 'site',
+  destDir: siteDir,
+  nameFn: (file) => `favicon-${Date.now()}${path.extname(file.originalname).toLowerCase() || '.png'}`,
+  fileFilter: faviconFilter,
+  maxSizeBytes: 2 * 1024 * 1024,
 });
 
 const uploadTeamPhoto = buildMulter({
@@ -204,6 +229,7 @@ const uploadVirtualTour = buildMulter({
 module.exports = {
   uploadPropertyImages,
   uploadSiteLogo,
+  uploadSiteFavicon,
   uploadTeamPhoto,
   uploadFloorPlan,
   uploadVirtualTour,
