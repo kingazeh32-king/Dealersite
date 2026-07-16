@@ -37,15 +37,26 @@ export default function SiteSettingsForm({ token, onSaved }) {
   const [uploadingFavicon, setUploadingFavicon] = useState(false);
 
   useEffect(() => {
+    let cancelled = false;
+
     api
       .getSettings()
       .then((data) => {
+        if (cancelled) return;
         const normalized = normalizeSettings(data.settings);
         setForm(toForm(normalized));
         setSettings(normalized);
       })
-      .catch(() => setError('Failed to load site settings'));
-  }, [setSettings]);
+      .catch(() => {
+        if (!cancelled) setError('Failed to load site settings');
+      });
+
+    return () => {
+      cancelled = true;
+    };
+    // Load once when the form mounts — do not re-fetch on every render.
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- intentional mount-only load
+  }, []);
 
   function handleChange(e) {
     const { name, value } = e.target;
