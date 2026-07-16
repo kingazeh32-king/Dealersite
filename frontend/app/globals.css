@@ -1,5 +1,10 @@
 @import "tailwindcss";
 
+/* Explicit sources so production builds always scan app + components */
+@source "../app/**/*.{js,jsx}";
+@source "../components/**/*.{js,jsx}";
+@source "../lib/**/*.{js,jsx}";
+
 :root {
   --background: #ffffff;
   --foreground: #0f172a;
