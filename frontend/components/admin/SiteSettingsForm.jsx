@@ -3,6 +3,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { api } from '@/lib/api';
 import { normalizeSettings, toApiPayload } from '@/lib/siteSettings';
+import { resolveImageUrl } from '@/lib/images';
+import { useSiteSettings } from '@/context/SiteSettingsContext';
 
 import {
   adminFieldClass as inputClass,
@@ -24,6 +26,7 @@ function toForm(settings) {
 
 export default function SiteSettingsForm({ token, onSaved }) {
   const fileRef = useRef(null);
+  const { setSettings } = useSiteSettings();
   const [form, setForm] = useState(null);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -33,9 +36,13 @@ export default function SiteSettingsForm({ token, onSaved }) {
   useEffect(() => {
     api
       .getSettings()
-      .then((data) => setForm(toForm(normalizeSettings(data.settings))))
+      .then((data) => {
+        const normalized = normalizeSettings(data.settings);
+        setForm(toForm(normalized));
+        setSettings(normalized);
+      })
       .catch(() => setError('Failed to load site settings'));
-  }, []);
+  }, [setSettings]);
 
   function handleChange(e) {
     const { name, value } = e.target;
@@ -55,6 +62,7 @@ export default function SiteSettingsForm({ token, onSaved }) {
       const data = await api.uploadLogo(token, file);
       const normalized = normalizeSettings(data.settings);
       setForm((prev) => ({ ...prev, logoUrl: normalized.logoUrl }));
+      setSettings(normalized);
       setSuccess('Logo uploaded and saved. Refresh the public site to see it.');
       onSaved?.(normalized);
     } catch (err) {
@@ -90,6 +98,7 @@ export default function SiteSettingsForm({ token, onSaved }) {
       const data = await api.updateSettings(token, payload);
       const normalized = normalizeSettings(data.settings);
       setForm(toForm(normalized));
+      setSettings(normalized);
       setSuccess('Site settings saved. Visit the public site to see changes.');
       onSaved?.(normalized);
     } catch (err) {
@@ -109,15 +118,17 @@ export default function SiteSettingsForm({ token, onSaved }) {
     );
   }
 
+  const previewSrc = resolveImageUrl(form.logoUrl) || form.logoUrl;
+
   return (
     <form onSubmit={handleSubmit} className="space-y-10">
       {error && (
-        <p className="rounded-md bg-red-50 px-4 py-3 text-sm text-red-700" role="alert">
+        <p className="border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700" role="alert">
           {error}
         </p>
       )}
       {success && (
-        <p className="rounded-md bg-green-50 px-4 py-3 text-sm text-green-700" role="status">
+        <p className="border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700" role="status">
           {success}
         </p>
       )}
@@ -157,9 +168,10 @@ export default function SiteSettingsForm({ token, onSaved }) {
           <div className="sm:col-span-2">
             <label className="block text-sm font-medium text-navy">Logo</label>
             <div className="mt-2 flex flex-wrap items-center gap-4">
-              <div className="flex h-16 min-w-[120px] items-center justify-center rounded-md border border-slate-200 bg-slate-light/50 px-4">
+              <div className="flex h-16 min-w-[120px] items-center justify-center border border-slate-200 bg-slate-light/50 px-4">
                 <img
-                  src={form.logoUrl}
+                  key={previewSrc}
+                  src={previewSrc}
                   alt="Current logo"
                   className="max-h-12 max-w-[160px] object-contain"
                 />
@@ -247,11 +259,7 @@ export default function SiteSettingsForm({ token, onSaved }) {
       </section>
 
       <div className="flex items-center gap-4">
-        <button
-          type="submit"
-          disabled={loading}
-          className={adminPrimaryBtnClass}
-        >
+        <button type="submit" disabled={loading} className={adminPrimaryBtnClass}>
           {loading ? 'Saving…' : 'Save settings'}
         </button>
       </div>

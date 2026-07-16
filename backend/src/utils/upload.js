@@ -208,6 +208,7 @@ module.exports = {
   uploadFloorPlan,
   uploadVirtualTour,
   filePublicUrl,
+  uploadRoot,
   propertiesDir,
   siteDir,
   teamDir,

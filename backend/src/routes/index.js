@@ -1,3 +1,5 @@
+const fs = require('fs');
+const path = require('path');
 const { Router } = require('express');
 const authRoutes = require('./auth');
 const propertiesRoutes = require('./properties');
@@ -9,11 +11,29 @@ const settingsRoutes = require('./settings');
 const teamRoutes = require('./team');
 const pagesRoutes = require('./pages');
 const testimonialsRoutes = require('./testimonials');
+const { uploadRoot } = require('../utils/upload');
 
 const router = Router();
 
 router.get('/health', (_req, res) => {
-  res.json({ status: 'ok', timestamp: new Date().toISOString() });
+  let uploads = null;
+  try {
+    const siteDir = path.join(uploadRoot, 'site');
+    uploads = {
+      root: uploadRoot,
+      exists: fs.existsSync(uploadRoot),
+      folders: fs.existsSync(uploadRoot) ? fs.readdirSync(uploadRoot) : [],
+      siteFiles: fs.existsSync(siteDir) ? fs.readdirSync(siteDir) : [],
+    };
+  } catch (err) {
+    uploads = { root: uploadRoot, error: err.message };
+  }
+
+  res.json({
+    status: 'ok',
+    timestamp: new Date().toISOString(),
+    uploads,
+  });
 });
 
 router.use('/auth', authRoutes);

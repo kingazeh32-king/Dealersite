@@ -130,13 +130,35 @@ export function normalizeSettings(row) {
   };
 }
 
+function toStoredLogoPath(logoUrl) {
+  if (!logoUrl) return logoUrl;
+  const value = String(logoUrl).trim();
+  if (!value) return value;
+
+  // Keep frontend public defaults as-is
+  if (value === '/logo.svg' || value.startsWith('/logo.')) return value;
+
+  const uploadsMatch = value.match(/\/uploads\/[^\s?#]+/);
+  if (uploadsMatch) return uploadsMatch[0];
+
+  if (value.startsWith('/api/uploads/')) return value.slice(4);
+
+  if (value.startsWith('http://') || value.startsWith('https://')) {
+    try {
+      return new URL(value).pathname;
+    } catch {
+      return value;
+    }
+  }
+
+  return value;
+}
+
 export function toApiPayload(settings) {
   return {
     site_name: settings.siteName,
     tagline: settings.tagline,
-    logo_url: settings.logoUrl?.startsWith('http')
-      ? settings.logoUrl.replace(/^https?:\/\/[^/]+/, '')
-      : settings.logoUrl,
+    logo_url: toStoredLogoPath(settings.logoUrl),
     contact_phone: settings.contact.phone,
     contact_email: settings.contact.email,
     contact_address: settings.contact.address,

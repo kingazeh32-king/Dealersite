@@ -9,6 +9,7 @@ const {
   isProduction,
   storage,
 } = require('./config/env');
+const { uploadRoot } = require('./utils/upload');
 const apiRoutes = require('./routes');
 const { notFound, errorHandler } = require('./middleware/errorHandler');
 const requestLogger = require('./middleware/requestLogger');
@@ -65,9 +66,12 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use(requestLogger);
 
-// Local disk uploads are served by Express; S3 files use their public URL
+// Local disk uploads are served by Express; S3 files use their public URL.
+// Use the same resolved uploadRoot multer writes to (supports absolute UPLOAD_DIR).
 if (storage.driver === 'local') {
-  app.use('/uploads', express.static(path.join(process.cwd(), upload.dir)));
+  const staticRoot = uploadRoot || path.resolve(process.cwd(), upload.dir);
+  logger.info(`Serving uploads from ${staticRoot}`);
+  app.use('/uploads', express.static(staticRoot, { fallthrough: true, index: false }));
 }
 
 app.use('/api', apiRoutes);
