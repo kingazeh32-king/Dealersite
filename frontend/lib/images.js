@@ -27,12 +27,21 @@ export function resolveImageUrl(path) {
   if (!normalized) return null;
 
   const origin = getApiOrigin();
+  const uploadsPath = extractUploadsPath(normalized);
 
-  if (normalized.startsWith('http://') || normalized.startsWith('https://')) {
-    const uploadsPath = extractUploadsPath(normalized);
+  // Absolute or mangled absolute URLs (including broken https:/host from older builds)
+  const looksAbsolute =
+    /^https?:\/\//i.test(normalized) ||
+    /^https?:\//i.test(normalized);
+
+  if (looksAbsolute) {
     let hostOk = false;
     try {
-      const parsed = new URL(normalized);
+      // Normalize https:/host → https://host for URL parsing
+      const parseable = normalized.replace(/^https?:\//i, (m) =>
+        m.endsWith('//') ? m : `${m}/`
+      );
+      const parsed = new URL(parseable);
       hostOk = Boolean(parsed.hostname) && !parsed.hostname.startsWith('-');
     } catch {
       hostOk = false;
@@ -40,6 +49,8 @@ export function resolveImageUrl(path) {
     if (uploadsPath && !hostOk) {
       return `${origin}${uploadsPath}`;
     }
+    if (hostOk) return normalized.replace(/^https:\//i, 'https://').replace(/^http:\//i, 'http://');
+    if (uploadsPath) return `${origin}${uploadsPath}`;
     return normalized;
   }
 
@@ -59,6 +70,10 @@ export function resolveImageUrl(path) {
   // Legacy mistaken /api/uploads/... paths
   if (normalized.startsWith('/api/uploads/')) {
     return `${origin}${normalized.slice(4)}`;
+  }
+
+  if (uploadsPath) {
+    return `${origin}${uploadsPath}`;
   }
 
   return `${origin}/uploads/properties/${normalized.replace(/^\//, '')}`;
