@@ -6,6 +6,9 @@ import { defaultSiteSettings, normalizeSettings } from '@/lib/siteSettings';
 
 const SiteSettingsContext = createContext(null);
 
+const noopSetSettings = () => {};
+const noopRefresh = async () => {};
+
 export function SiteSettingsProvider({ children, initialSettings }) {
   const [settings, setSettings] = useState(initialSettings || defaultSiteSettings);
 
@@ -33,7 +36,11 @@ export function SiteSettingsProvider({ children, initialSettings }) {
 export function useSiteSettings() {
   const ctx = useContext(SiteSettingsContext);
   if (!ctx) {
-    return { settings: defaultSiteSettings, setSettings: () => {}, refresh: async () => {} };
+    return {
+      settings: defaultSiteSettings,
+      setSettings: noopSetSettings,
+      refresh: noopRefresh,
+    };
   }
   return ctx;
 }
