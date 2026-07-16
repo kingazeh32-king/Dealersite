@@ -16,7 +16,7 @@ function getTransporter() {
   return transporter;
 }
 
-async function sendMail({ subject, text, html }) {
+async function sendMail({ subject, text, html, replyTo }) {
   if (!mail.enabled || !mail.notifyTo) {
     console.log('[email:skipped]', subject);
     console.log(text);
@@ -27,6 +27,7 @@ async function sendMail({ subject, text, html }) {
   await transport.sendMail({
     from: mail.from,
     to: mail.notifyTo,
+    replyTo: replyTo || undefined,
     subject,
     text,
     html: html || text.replace(/\n/g, '<br>'),
@@ -43,9 +44,16 @@ async function notifyInquiry(inquiry) {
     `Type: ${inquiry.inquiry_type}`,
     inquiry.property_name ? `Property: ${inquiry.property_name}` : null,
     inquiry.message ? `\nMessage:\n${inquiry.message}` : null,
-  ].filter(Boolean);
+    '',
+    '—',
+    'Reply to this email to respond to the buyer (if they provided an email).',
+  ].filter((line) => line !== null);
 
-  return sendMail({ subject, text: lines.join('\n') });
+  return sendMail({
+    subject,
+    text: lines.join('\n'),
+    replyTo: inquiry.email || undefined,
+  });
 }
 
 async function notifyLead(lead) {

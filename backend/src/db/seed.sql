@@ -25,13 +25,13 @@ INSERT INTO site_settings (
   hero_content, trust_signals, how_it_works, featured_homes_count
 ) VALUES (
   1,
-  'Home Dealership',
+  'Manufactured Mobile Homes of Texas',
   'Manufactured & Tiny Homes',
   '/logo.svg',
   '(555) 123-4567',
-  'info@dealersite.com',
-  '123 Dealer Way, Suite 100',
-  'Your City, ST 12345',
+  'info@mobilehomesoftx.com',
+  '',
+  'Texas, USA',
   'Mon–Fri 9am–6pm · Sat 10am–4pm',
   '{
     "eyebrow": "Manufactured & Tiny Homes",

@@ -59,9 +59,9 @@ export const defaultSiteSettings = {
   featuredHomesCount: defaultFeaturedHomesCount,
   contact: {
     phone: process.env.NEXT_PUBLIC_CONTACT_PHONE || '(555) 123-4567',
-    email: process.env.NEXT_PUBLIC_CONTACT_EMAIL || 'info@dealersite.com',
-    address: process.env.NEXT_PUBLIC_CONTACT_ADDRESS || '123 Dealer Way, Suite 100',
-    city: process.env.NEXT_PUBLIC_CONTACT_CITY || 'Your City, ST 12345',
+    email: process.env.NEXT_PUBLIC_CONTACT_EMAIL || 'info@mobilehomesoftx.com',
+    address: process.env.NEXT_PUBLIC_CONTACT_ADDRESS || '',
+    city: process.env.NEXT_PUBLIC_CONTACT_CITY || 'Texas, USA',
     hours: process.env.NEXT_PUBLIC_CONTACT_HOURS || 'Mon–Fri 9am–6pm · Sat 10am–4pm',
   },
 };
