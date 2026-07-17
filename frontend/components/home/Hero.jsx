@@ -1,19 +1,25 @@
 import Link from 'next/link';
-
-const HERO_IMAGE =
-  'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?auto=format&fit=crop&w=2000&q=80';
+import { resolveImageUrl } from '@/lib/images';
+import { defaultHero } from '@/lib/siteSettings';
 
 export default function Hero({ hero }) {
   if (!hero) return null;
 
+  const imageSrc =
+    resolveImageUrl(hero.imageUrl) ||
+    resolveImageUrl(defaultHero.imageUrl) ||
+    defaultHero.imageUrl;
+
   return (
     <section className="relative isolate overflow-hidden text-white">
-      <img
-        src={HERO_IMAGE}
-        alt=""
-        className="absolute inset-0 h-full w-full object-cover"
-        fetchPriority="high"
-      />
+      {imageSrc ? (
+        <img
+          src={imageSrc}
+          alt=""
+          className="absolute inset-0 h-full w-full object-cover"
+          fetchPriority="high"
+        />
+      ) : null}
       <div
         className="absolute inset-0 bg-gradient-to-r from-navy-deep/94 via-navy-deep/88 to-navy-deep/70"
         aria-hidden="true"

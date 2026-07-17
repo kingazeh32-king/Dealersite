@@ -8,13 +8,14 @@
  *   PUT  /api/settings                      - Update site settings
  *   POST /api/settings/logo                 - Upload site logo
  *   POST /api/settings/favicon              - Upload site favicon
+ *   POST /api/settings/hero                 - Upload hero background image
  */
 
 const { Router } = require('express');
 const { body } = require('express-validator');
 const { validate } = require('../middleware/validate');
 const { authenticate } = require('../middleware/auth');
-const { uploadSiteLogo, uploadSiteFavicon } = require('../utils/upload');
+const { uploadSiteLogo, uploadSiteFavicon, uploadSiteHero } = require('../utils/upload');
 const settingsController = require('../controllers/settingsController');
 
 const router = Router();
@@ -57,6 +58,13 @@ router.post(
   authenticate,
   uploadSiteFavicon.single('favicon'),
   settingsController.uploadFavicon
+);
+
+router.post(
+  '/hero',
+  authenticate,
+  uploadSiteHero.single('hero'),
+  settingsController.uploadHero
 );
 
 module.exports = router;

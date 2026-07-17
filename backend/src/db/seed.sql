@@ -41,7 +41,8 @@ INSERT INTO site_settings (
     "secondaryCta": {"label": "Request a Quote", "href": "/request-quote"},
     "cardTitle": "Why buyers choose us",
     "cardFooter": "Every home in our inventory meets federal HUD standards. We handle delivery, setup coordination, and financing guidance — so you can focus on finding the right home.",
-    "badges": ["Nationwide Delivery", "Flexible Financing", "HUD-Compliant Homes", "No-Pressure Sales"]
+    "badges": ["Nationwide Delivery", "Flexible Financing", "HUD-Compliant Homes", "No-Pressure Sales"],
+    "imageUrl": "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?auto=format&fit=crop&w=2000&q=80"
   }'::jsonb,
   '[
     {"value": "30–50%", "label": "Savings vs. site-built", "detail": "Per square foot"},
@@ -250,8 +251,8 @@ INSERT INTO properties (
   ],
   'Permanent foundation installation available. White-glove delivery and setup service included.',
   ARRAY[
-    'https://images.unsplash.com/photo-1600047509807-ba8f99d2cd00?auto=format&fit=crop&w=1600&q=80',
-    'https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?auto=format&fit=crop&w=1600&q=80'
+    'https://images.unsplash.com/photo-1600585154526-990dced4db0d?auto=format&fit=crop&w=1600&q=80',
+    'https://images.unsplash.com/photo-1613490493576-7fde63acd811?auto=format&fit=crop&w=1600&q=80'
   ],
   TRUE
 ),

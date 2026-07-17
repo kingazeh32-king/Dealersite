@@ -13,6 +13,8 @@ export const defaultHero = {
   cardFooter:
     'Every home in our inventory meets federal HUD standards. We handle delivery, setup coordination, and financing guidance — so you can focus on finding the right home.',
   badges: ['Nationwide Delivery', 'Flexible Financing', 'HUD-Compliant Homes', 'No-Pressure Sales'],
+  imageUrl:
+    'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?auto=format&fit=crop&w=2000&q=80',
 };
 
 export const defaultTrustSignals = [
@@ -77,6 +79,7 @@ function normalizeHero(raw) {
     cardTitle: raw.cardTitle || defaultHero.cardTitle,
     cardFooter: raw.cardFooter || defaultHero.cardFooter,
     badges: Array.isArray(raw.badges) && raw.badges.length ? raw.badges : defaultHero.badges,
+    imageUrl: raw.imageUrl || raw.image_url || defaultHero.imageUrl,
   };
 }
 

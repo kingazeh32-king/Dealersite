@@ -186,6 +186,14 @@ const uploadSiteFavicon = buildMulter({
   maxSizeBytes: 2 * 1024 * 1024,
 });
 
+const uploadSiteHero = buildMulter({
+  folder: 'site',
+  destDir: siteDir,
+  nameFn: (file) => `hero-${Date.now()}${path.extname(file.originalname).toLowerCase()}`,
+  fileFilter: imageFilter,
+  maxSizeBytes: 8 * 1024 * 1024,
+});
+
 const uploadTeamPhoto = buildMulter({
   folder: 'team',
   destDir: teamDir,
@@ -230,6 +238,7 @@ module.exports = {
   uploadPropertyImages,
   uploadSiteLogo,
   uploadSiteFavicon,
+  uploadSiteHero,
   uploadTeamPhoto,
   uploadFloorPlan,
   uploadVirtualTour,

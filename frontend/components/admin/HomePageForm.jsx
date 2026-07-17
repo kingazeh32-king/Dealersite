@@ -1,7 +1,8 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { api } from '@/lib/api';
+import { resolveImageUrl } from '@/lib/images';
 import { defaultHero, defaultTrustSignals, defaultHowItWorks, defaultFeaturedHomesCount, normalizeSettings } from '@/lib/siteSettings';
 
 import {
@@ -20,6 +21,8 @@ export default function HomePageForm({ token }) {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
+  const [uploadingHero, setUploadingHero] = useState(false);
+  const heroFileRef = useRef(null);
 
   useEffect(() => {
     api.getSettings().then((data) => {
@@ -45,6 +48,30 @@ export default function HomePageForm({ token }) {
 
   function addBadge() {
     setHero((prev) => ({ ...prev, badges: [...prev.badges, ''] }));
+  }
+
+  async function handleHeroUpload(e) {
+    const file = e.target.files?.[0];
+    if (!file || !token) return;
+    setUploadingHero(true);
+    setError('');
+    setSuccess('');
+    try {
+      const data = await api.uploadHeroImage(token, file);
+      const imageUrl = data.imageUrl || data.image_url;
+      if (imageUrl) {
+        setHero((prev) => ({ ...prev, imageUrl }));
+      } else if (data.settings) {
+        const s = normalizeSettings(data.settings);
+        setHero(s.hero);
+      }
+      setSuccess('Hero image uploaded.');
+    } catch (err) {
+      setError(err.message || 'Hero image upload failed');
+    } finally {
+      setUploadingHero(false);
+      if (heroFileRef.current) heroFileRef.current.value = '';
+    }
   }
 
   function updateSignal(index, field, value) {
@@ -111,6 +138,8 @@ export default function HomePageForm({ token }) {
     }
   }
 
+  const heroPreviewSrc = resolveImageUrl(hero.imageUrl) || hero.imageUrl;
+
   return (
     <form onSubmit={handleSubmit} className="max-w-3xl space-y-8">
       {error && <p className="rounded-md bg-red-50 px-4 py-3 text-sm text-red-700">{error}</p>}
@@ -119,6 +148,37 @@ export default function HomePageForm({ token }) {
       <section className="border border-slate-200 bg-white p-6">
         <h2 className="font-semibold text-navy">Hero section</h2>
         <div className="mt-4 space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-navy">Background image URL</label>
+            <input
+              className={inputClass}
+              value={hero.imageUrl || ''}
+              onChange={(e) => updateHero('imageUrl', e.target.value)}
+              placeholder="https://… or /uploads/site/…"
+            />
+            <p className="mt-1 text-xs text-slate">
+              Paste an image URL, or upload a file below. Save the form after changing the URL.
+            </p>
+            {heroPreviewSrc ? (
+              <img
+                key={heroPreviewSrc}
+                src={heroPreviewSrc}
+                alt="Hero background preview"
+                className="mt-3 h-36 w-full rounded-md object-cover"
+              />
+            ) : null}
+            <div className="mt-3">
+              <input
+                ref={heroFileRef}
+                type="file"
+                accept="image/jpeg,image/png,image/webp,image/gif"
+                onChange={handleHeroUpload}
+                disabled={!token || uploadingHero}
+                className="block w-full text-sm text-slate file:mr-3 file:rounded-md file:border-0 file:bg-navy file:px-3 file:py-2 file:text-sm file:font-semibold file:text-white"
+              />
+              {uploadingHero ? <p className="mt-1 text-xs text-slate">Uploading…</p> : null}
+            </div>
+          </div>
           <div>
             <label className="block text-sm font-medium text-navy">Eyebrow</label>
             <input className={inputClass} value={hero.eyebrow} onChange={(e) => updateHero('eyebrow', e.target.value)} />

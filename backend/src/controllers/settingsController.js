@@ -67,6 +67,16 @@ async function update(req, res, next) {
     if (data.favicon_url !== undefined) {
       data.favicon_url = sanitizeMediaUrl(data.favicon_url);
     }
+    if (data.hero_content && typeof data.hero_content === 'object') {
+      const imageUrl = data.hero_content.imageUrl || data.hero_content.image_url;
+      if (imageUrl) {
+        data.hero_content = {
+          ...data.hero_content,
+          imageUrl: sanitizeMediaUrl(imageUrl),
+        };
+        delete data.hero_content.image_url;
+      }
+    }
 
     if (!Object.keys(data).length) {
       return res.status(400).json({ error: 'No valid fields to update' });
@@ -116,4 +126,29 @@ async function uploadFavicon(req, res, next) {
   }
 }
 
-module.exports = { get, update, uploadLogo, uploadFavicon };
+async function uploadHero(req, res, next) {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: 'No hero image uploaded' });
+    }
+
+    const { filePublicUrl } = require('../utils/upload');
+    const imageUrl = filePublicUrl(req.file, 'site');
+    const current = await db.settings.get();
+    const heroContent = {
+      ...(current?.hero_content && typeof current.hero_content === 'object'
+        ? current.hero_content
+        : {}),
+      imageUrl,
+    };
+    delete heroContent.image_url;
+
+    const settings = await db.settings.update({ hero_content: heroContent });
+
+    res.json({ settings, image_url: imageUrl, imageUrl });
+  } catch (err) {
+    next(err);
+  }
+}
+
+module.exports = { get, update, uploadLogo, uploadFavicon, uploadHero };
