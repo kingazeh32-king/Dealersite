@@ -1,0 +1,52 @@
+# Vercel Speed Insights Installation
+
+Successfully installed and configured Vercel Speed Insights for this Next.js project.
+
+## Changes Made
+
+### 1. Package Installation
+- Installed `@vercel/speed-insights` package (version resolved by npm)
+- Updated `package.json` with the new dependency
+- Updated `package-lock.json` with locked dependency versions
+
+### 2. Code Integration
+Modified `/app/layout.jsx`:
+- Added import: `import { SpeedInsights } from '@vercel/speed-insights/next';`
+- Added `<SpeedInsights />` component in the body section, alongside the existing `<Analytics />` component
+
+### Implementation Details
+
+Following the official Vercel documentation (https://vercel.com/docs/speed-insights/quickstart), the integration was performed using the Next.js 13.5+ framework-specific instructions:
+
+1. The SpeedInsights component is imported from `@vercel/speed-insights/next`
+2. The component is placed in the root layout's body section
+3. This follows the same pattern as the existing Analytics component
+
+### Testing & Verification
+
+✅ Build completed successfully (`npm run build`)
+✅ No new linting errors introduced (ran `npm run lint`)
+✅ Project structure and existing code patterns preserved
+✅ Lock files properly updated
+
+### Next Steps
+
+To start seeing Speed Insights data in your Vercel dashboard:
+
+1. Enable Speed Insights in your Vercel project dashboard:
+   - Navigate to your project settings
+   - Find "Speed Insights" in the sidebar
+   - Click "Enable" for your project
+
+2. Deploy the application:
+   - Push changes to your Git repository, or
+   - Run `vercel deploy` via the Vercel CLI
+
+3. Monitor results:
+   - After deployment and user visits, view performance metrics in your Vercel dashboard
+
+## Files Modified
+
+- `/app/layout.jsx` - Added SpeedInsights import and component
+- `/package.json` - Added @vercel/speed-insights dependency
+- `/package-lock.json` - Updated with locked dependency versions
