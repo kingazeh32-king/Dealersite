@@ -7,7 +7,7 @@ export default function Hero({ hero }) {
   if (!hero) return null;
 
   return (
-    <section className="relative isolate min-h-[78vh] overflow-hidden text-white sm:min-h-[85vh]">
+    <section className="relative isolate overflow-hidden text-white">
       <img
         src={HERO_IMAGE}
         alt=""
@@ -15,38 +15,60 @@ export default function Hero({ hero }) {
         fetchPriority="high"
       />
       <div
-        className="absolute inset-0 bg-gradient-to-r from-navy-deep/92 via-navy-deep/78 to-navy-deep/45"
-        aria-hidden="true"
-      />
-      <div
-        className="absolute inset-0 bg-gradient-to-t from-navy-deep/70 via-transparent to-navy-deep/30"
+        className="absolute inset-0 bg-gradient-to-r from-navy-deep/94 via-navy-deep/88 to-navy-deep/70"
         aria-hidden="true"
       />
 
-      <div className="relative mx-auto flex min-h-[78vh] max-w-7xl flex-col justify-end px-4 pb-14 pt-28 sm:min-h-[85vh] sm:px-6 sm:pb-20 sm:pt-32 lg:px-8">
-        <p className="text-sm font-semibold uppercase tracking-[0.22em] text-gold">
-          {hero.eyebrow}
-        </p>
-        <h1 className="mt-4 max-w-3xl text-4xl font-bold leading-[1.1] tracking-tight sm:text-5xl lg:text-6xl">
-          {hero.title}
-        </h1>
-        <p className="mt-5 max-w-xl text-base leading-relaxed text-white/85 sm:text-lg">
-          {hero.description}
-        </p>
+      <div className="relative mx-auto max-w-7xl px-4 py-20 sm:px-6 sm:py-28 lg:px-8">
+        <div className="grid items-center gap-12 lg:grid-cols-2 lg:gap-16">
+          <div>
+            <p className="text-sm font-semibold uppercase tracking-widest text-gold">
+              {hero.eyebrow}
+            </p>
+            <h1 className="mt-4 text-4xl font-bold leading-[1.15] tracking-tight sm:text-5xl lg:text-6xl">
+              {hero.title}
+            </h1>
+            <p className="mt-6 max-w-xl text-lg leading-relaxed text-slate-300">
+              {hero.description}
+            </p>
 
-        <div className="mt-9 flex flex-wrap gap-3">
-          <Link
-            href={hero.primaryCta?.href || '/inventory'}
-            className="rounded-md bg-gold px-7 py-3.5 text-sm font-semibold text-navy-deep transition-colors hover:bg-gold-hover"
-          >
-            {hero.primaryCta?.label || 'Browse Inventory'}
-          </Link>
-          <Link
-            href={hero.secondaryCta?.href || '/request-quote'}
-            className="rounded-md border border-white/35 bg-white/5 px-7 py-3.5 text-sm font-semibold text-white backdrop-blur-sm transition-colors hover:bg-white/15"
-          >
-            {hero.secondaryCta?.label || 'Request a Quote'}
-          </Link>
+            <div className="mt-10 flex flex-wrap gap-4">
+              <Link
+                href={hero.primaryCta?.href || '/inventory'}
+                className="rounded-md bg-gold px-7 py-3.5 text-sm font-semibold text-navy-deep transition-colors hover:bg-gold-hover"
+              >
+                {hero.primaryCta?.label || 'Browse Inventory'}
+              </Link>
+              <Link
+                href={hero.secondaryCta?.href || '/request-quote'}
+                className="rounded-md border border-white/25 px-7 py-3.5 text-sm font-semibold text-white transition-colors hover:bg-white/10"
+              >
+                {hero.secondaryCta?.label || 'Request a Quote'}
+              </Link>
+            </div>
+          </div>
+
+          <div className="rounded-xl border border-white/10 bg-white/5 p-8 backdrop-blur-sm">
+            <p className="text-sm font-medium uppercase tracking-wide text-gold">
+              {hero.cardTitle}
+            </p>
+            <ul className="mt-6 space-y-5">
+              {(hero.badges || []).map((badge) => (
+                <li key={badge} className="flex items-center gap-3">
+                  <span
+                    className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-gold/20 text-xs font-bold text-gold"
+                    aria-hidden="true"
+                  >
+                    ✓
+                  </span>
+                  <span className="font-medium text-white">{badge}</span>
+                </li>
+              ))}
+            </ul>
+            <p className="mt-8 border-t border-white/10 pt-6 text-sm leading-relaxed text-slate-400">
+              {hero.cardFooter}
+            </p>
+          </div>
         </div>
       </div>
     </section>
