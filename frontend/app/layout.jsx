@@ -1,6 +1,7 @@
 import { Inter } from 'next/font/google';
 import './globals.css';
 import Providers from '@/providers/Providers';
+import { Analytics } from '@vercel/analytics/next';
 
 export const icons = {
   icon: '/icon.svg',
@@ -42,6 +43,7 @@ export default function RootLayout({ children }) {
       </head>
       <body className="flex min-h-full flex-col antialiased">
         <Providers>{children}</Providers>
+        <Analytics />
       </body>
     </html>
   );
