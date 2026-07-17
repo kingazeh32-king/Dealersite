@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { resolveImageUrl } from '@/lib/images';
+import PropertyImage from '@/components/ui/PropertyImage';
 
 function formatPrice(price) {
   return new Intl.NumberFormat('en-US', {
@@ -46,17 +47,11 @@ export default function HomeCard({ home }) {
     <article className="group flex flex-col overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm transition-shadow hover:shadow-md">
       {/* Image */}
       <Link href={detailHref} className="relative block aspect-[4/3] overflow-hidden bg-slate-light">
-        {imageSrc ? (
-          <img
-            src={imageSrc}
-            alt={name}
-            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-          />
-        ) : (
-          <div className="flex h-full items-center justify-center bg-navy-deep/5">
-            <span className="text-sm font-medium text-slate">Photo coming soon</span>
-          </div>
-        )}
+        <PropertyImage
+          src={imageSrc}
+          alt={name}
+          className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+        />
 
         <div className="absolute left-3 top-3 flex gap-2">
           <span className="rounded bg-navy-deep/90 px-2 py-1 text-xs font-semibold uppercase tracking-wide text-white">

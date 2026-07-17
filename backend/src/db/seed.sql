@@ -193,7 +193,10 @@ INSERT INTO properties (
     'Shingle roof with 30-year warranty'
   ],
   'Available for delivery nationwide. International shipping to Caribbean and West Africa available. Contact us for a custom delivery quote.',
-  ARRAY['/uploads/properties/texas-ruby-1.jpg', '/uploads/properties/texas-ruby-2.jpg'],
+  ARRAY[
+    'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?auto=format&fit=crop&w=1600&q=80',
+    'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1600&q=80'
+  ],
   TRUE
 ),
 
@@ -217,7 +220,10 @@ INSERT INTO properties (
     'Covered rear porch'
   ],
   'Nationwide delivery available. Site preparation services included in purchase package.',
-  ARRAY['/uploads/properties/skyberry-1.jpg', '/uploads/properties/skyberry-2.jpg'],
+  ARRAY[
+    'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=1600&q=80',
+    'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=1600&q=80'
+  ],
   TRUE
 ),
 
@@ -243,7 +249,10 @@ INSERT INTO properties (
     'Two-car carport ready'
   ],
   'Permanent foundation installation available. White-glove delivery and setup service included.',
-  ARRAY['/uploads/properties/southern-charm-1.jpg', '/uploads/properties/southern-charm-2.jpg'],
+  ARRAY[
+    'https://images.unsplash.com/photo-1600047509807-ba8f99d2cd00?auto=format&fit=crop&w=1600&q=80',
+    'https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?auto=format&fit=crop&w=1600&q=80'
+  ],
   TRUE
 ),
 
@@ -267,7 +276,10 @@ INSERT INTO properties (
     'Large master bedroom with ensuite'
   ],
   'Available for local and regional delivery. Re-leveling and tie-down included in price.',
-  ARRAY['/uploads/properties/mayhew-1.jpg', '/uploads/properties/mayhew-2.jpg'],
+  ARRAY[
+    'https://images.unsplash.com/photo-1570129477492-45c003edd2be?auto=format&fit=crop&w=1600&q=80',
+    'https://images.unsplash.com/photo-1605276374104-dee2a0ed3cd6?auto=format&fit=crop&w=1600&q=80'
+  ],
   FALSE
 ),
 
@@ -291,7 +303,10 @@ INSERT INTO properties (
     'Quick delivery available'
   ],
   'Available immediately. Delivery within 200 miles included.',
-  ARRAY['/uploads/properties/boxwood-1.jpg', '/uploads/properties/boxwood-2.jpg'],
+  ARRAY[
+    'https://images.unsplash.com/photo-1449844908441-8829872d2607?auto=format&fit=crop&w=1600&q=80',
+    'https://images.unsplash.com/photo-1480074568708-e7b720bb3f09?auto=format&fit=crop&w=1600&q=80'
+  ],
   FALSE
 ),
 
@@ -317,7 +332,10 @@ INSERT INTO properties (
     'Composting toilet option available'
   ],
   'Delivered nationwide. Can be shipped internationally with proper permits. Self-towable or professional delivery available.',
-  ARRAY['/uploads/properties/linden-1.jpg', '/uploads/properties/linden-2.jpg'],
+  ARRAY[
+    'https://images.unsplash.com/photo-1518780664697-55e3ad937233?auto=format&fit=crop&w=1600&q=80',
+    'https://images.unsplash.com/photo-1523217582562-09d0def993a6?auto=format&fit=crop&w=1600&q=80'
+  ],
   TRUE
 ),
 
@@ -342,7 +360,10 @@ INSERT INTO properties (
     'Perfect for RV parks and vacation land'
   ],
   'Park model delivery and setup included. Site leveling and utility hookup coordination available.',
-  ARRAY['/uploads/properties/park-ridge-1.jpg', '/uploads/properties/park-ridge-2.jpg'],
+  ARRAY[
+    'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=1600&q=80',
+    'https://images.unsplash.com/photo-1493809842364-78817add7ffb?auto=format&fit=crop&w=1600&q=80'
+  ],
   FALSE
 );
 
